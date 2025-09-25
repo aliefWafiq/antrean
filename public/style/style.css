@@ -1,0 +1,163 @@
+.h-screen {
+    height: 100vh;
+}
+
+.card-antrean {
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    background-color: white;
+}
+
+.main-text {
+    font-weight: 500;
+}
+
+.text-gray {
+    color: #818181;
+}
+
+.btn-buat-antrean {
+    background-color: #6a9c25;
+    border-radius: 48px;
+    color: white;
+    font-weight: 700;
+    z-index: 100;
+}
+
+.btn-buat-antrean:hover {
+    background-color: #5a7c15;
+    color: white;
+}
+
+.ticket-divider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 45px;
+    margin-bottom: 10px;
+}
+
+.dashed-line {
+    flex-grow: 1;
+    height: 1px;
+    background-image: repeating-linear-gradient(to right,
+            #ccc 0,
+            #ccc 30px,
+            transparent 5px,
+            transparent 40px);
+}
+
+.circle-left,
+.circle-right {
+    width: 30px;
+    height: 30px;
+    background-color: #e7f9cf;
+    border-radius: 50%;
+    position: absolute;
+    top: 28%;
+    transform: translateY(-50%);
+}
+
+.circle-left {
+    left: -15px;
+}
+
+.circle-right {
+    right: -15px;
+}
+
+.main-text {
+    font-weight: 500;
+}
+
+.text-gray {
+    color: #818181;
+}
+
+.container-card {
+    width: 100%;
+}
+
+.bg-image {
+    width: 100%;
+}
+
+.form-input {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal.fade.modal-bottom {
+    display: flex !important;
+    justify-content: center;
+    align-items: flex-end;
+    pointer-events: none;
+}
+
+.modal.show.modal-bottom {
+    pointer-events: auto;
+}
+
+.modal.fade.modal-bottom .modal-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    transform: translateY(100%);
+    transition: transform .3s ease-out;
+}
+
+.modal.show.modal-bottom .modal-dialog {
+    transform: translateY(0);
+}
+
+.modal.fade.modal-bottom .modal-content {
+    border-radius: 16px 16px 0 0;
+}
+
+.btn-success-custom {
+    background-color: #79a14a;
+    border-color: #79a14a;
+    color: white;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    width: 100%;
+}
+
+.btn-success-custom:hover {
+    background-color: #688a3f;
+    border-color: #688a3f;
+    color: white;
+}
+
+@media only screen and (min-width: 400px) {
+    .container-card {
+        width: 400px;
+    }
+
+    .bg-image {
+        min-width: 383px;
+        max-width: 400px;
+    }
+
+    .modal.fade.modal-bottom .modal-dialog {
+        width: 400px;
+        max-width: 400px;
+    }
+
+    .modal.fade.modal-bottom .modal-content {
+        border-radius: 16px 16px 0 0;
+    }
+}
