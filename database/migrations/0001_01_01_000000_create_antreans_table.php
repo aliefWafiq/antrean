@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('antreans', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('namaLengkap');
-            $table->integer('noPerkara');
+            $table->string('noPerkara');
             $table->enum('jenisPerkara', ['Gugatan', 'Permohonan']);
             $table->string('tiketAntrean');
             $table->time('jam_perkiraan');
