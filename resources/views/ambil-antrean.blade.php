@@ -18,7 +18,7 @@
             </div>
             <div class="mb-4">
                 <label for="nomor_perkara" class="form-label">Nomor Perkara</label>
-                <input type="number" class="form-input w-100" id="nomor_perkara" name="nomor_perkara" placeholder="Masukkan nomor perkara" required>
+                <input type="text" class="form-input w-100" id="nomor_perkara" name="nomor_perkara" placeholder="Masukkan nomor perkara" required>
             </div>
             <div class="mb-4">
                 <label for="inputState">Jenis Perkara</label>

@@ -30,7 +30,7 @@
                     </div>
                     <div class="mt-4">
                         <span class="text-gray">Lokasi</span>
-                        <p class="main-text pr-5">Pengadilan Agama Bengkalis, Jl. Pertanian No. 10</p>
+                        <p class="main-text pr-5">Jl. Lembaga, No. 01, Desa Senggoro, Kecamatan Bengkalis, Kabupaten Bengkalis, Riau</p>
                     </div>
                     <div class="mt-4">
                         <p class="main-text"><span class="text-gray">Perkiraan dipanggil pada pukul </span>{{ session('antrean')->jam_perkiraan }} WIB</p>

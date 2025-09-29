@@ -32,7 +32,7 @@ class antreanController extends Controller
         $tanggal_sidang = date('Y-m-d');
 
         $currentTime = date('H:i');
-        $perkiraan_sidang = date('H:i', strtotime($currentTime . ' +20 minutes'));
+        $perkiraan_sidang = date('H:i', strtotime($currentTime . ' +15 minutes'));
 
         if ($lastEntry && $lastEntry->created_at->format('Ymd') == $currentDate) {
             $lastTiketNumber = (int)$lastEntry->tiketAntrean;
@@ -54,10 +54,6 @@ class antreanController extends Controller
             'jam_perkiraan' => $perkiraan_sidang,
             'tanggal_sidang' => $tanggal_sidang,
         ]);
-
-        // CEK SELECT INPUT
-        // MASALAH NO PERKARA KEK ANGKA KEBESARAN
-        // BUG POP UP BERGESER
 
         return redirect('/')->with('antrean', $antreanBaru)->with('showModal', true);
     }
