@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\antreans;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class antreanController extends Controller
 {
@@ -16,7 +18,7 @@ class antreanController extends Controller
     public function antrean($id = null)
     {
         $dataAntrean = null;
-        if($id){
+        if ($id) {
             $dataAntrean = antreans::find($id);
         }
         return view('antrean', [
@@ -37,35 +39,39 @@ class antreanController extends Controller
             'jenis_perkara' => 'required',
         ]);
 
-        $currentDate = now()->format('Ymd');
-        $lastEntry = antreans::latest()->first();
+        try {
+            $antreanBaru = DB::transaction(function () use ($request) {
 
-        $tanggal_sidang = date('Y-m-d');
+                $sekarang = now();
+                $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
+                $tanggal_sidang = $sekarang->copy()->startOfDay();
 
-        $currentTime = date('H:i');
-        $perkiraan_sidang = date('H:i', strtotime($currentTime . ' +15 minutes'));
+                if ($perkiraan_sidang->hour >= 16) {
+                    $tanggal_sidang->addDay()->startOfDay();
+                    $perkiraan_sidang->setTime(8, 0, 0);
+                }
 
-        if ($lastEntry && $lastEntry->created_at->format('Ymd') == $currentDate) {
-            $lastTiketNumber = (int)$lastEntry->tiketAntrean;
-            $tiketAntrean = str_pad($lastTiketNumber + 1, 3, '0', STR_PAD_LEFT);
-        } else {
-            $tiketAntrean = '001';
+                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang)
+                    ->orderBy('id', 'desc')
+                    ->lockForUpdate()
+                    ->first();
+
+                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
+                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
+
+                return antreans::create([
+                    'namaLengkap'   => $request->input('nama_pihak'),
+                    'noPerkara'     => $request->input('nomor_perkara'),
+                    'jenisPerkara'  => $request->input('jenis_perkara'),
+                    'tiketAntrean'  => $tiketAntrean,
+                    'jam_perkiraan' => $perkiraan_sidang->format('H:i:s'),
+                    'tanggal_sidang' => $tanggal_sidang->format('Y-m-d'),
+                ]);
+            }, 5); 
+
+            return redirect('/antrean/' . $antreanBaru->id)->with('showModal', true);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat mengambil nomor antrean, silakan coba lagi.');
         }
-
-        if ($perkiraan_sidang > '16:00') {
-            $perkiraan_sidang = '08:00';
-            $tanggal_sidang = date('Y-m-d', strtotime($tanggal_sidang . ' +1 day'));
-        }
-
-        $antreanBaru = antreans::create([
-            'namaLengkap' => $request->input('nama_pihak'),
-            'noPerkara' => $request->input('nomor_perkara'),
-            'tiketAntrean' => $tiketAntrean,
-            'jenisPerkara' => $request->input('jenis_perkara'),
-            'jam_perkiraan' => $perkiraan_sidang,
-            'tanggal_sidang' => $tanggal_sidang,
-        ]);
-
-        return redirect('/antrean/'. $antreanBaru->id)->with('showModal', true);
     }
 }

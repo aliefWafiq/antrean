@@ -19,8 +19,11 @@ return new class extends Migration
             $table->string('tiketAntrean');
             $table->time('jam_perkiraan');
             $table->date('tanggal_sidang');
+            $table->enum('status', ['menunggu', 'telah di panggil'])->default('menunggu');
             $table->timestamp('updated_at');
             $table->timestamp('created_at');
+
+            $table->unique(['tiketAntrean']);
         });
 
         Schema::create('sessions', function (Blueprint $table) {
