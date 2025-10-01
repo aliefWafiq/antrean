@@ -13,6 +13,17 @@ class antreanController extends Controller
         return view('welcome');
     }
 
+    public function antrean($id = null)
+    {
+        $dataAntrean = null;
+        if($id){
+            $dataAntrean = antreans::find($id);
+        }
+        return view('antrean', [
+            'dataAntrean' => $dataAntrean
+        ]);
+    }
+
     public function ambilAntrean()
     {
         return view('ambil-antrean');
@@ -55,6 +66,6 @@ class antreanController extends Controller
             'tanggal_sidang' => $tanggal_sidang,
         ]);
 
-        return redirect('/')->with('antrean', $antreanBaru)->with('showModal', true);
+        return redirect('/antrean/'. $antreanBaru->id)->with('showModal', true);
     }
 }

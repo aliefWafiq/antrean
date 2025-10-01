@@ -52,10 +52,10 @@
 .circle-right {
     width: 30px;
     height: 30px;
-    background-color: #e7f9cf;
+    background-color: #F5F7FA;
     border-radius: 50%;
     position: absolute;
-    top: 28%;
+    top: 21%;
     transform: translateY(-50%);
 }
 
@@ -140,6 +140,11 @@
     background-color: #688a3f;
     border-color: #688a3f;
     color: white;
+}
+
+.logo {
+    width: 40px;
+    height: auto;
 }
 
 @media only screen and (min-width: 400px) {

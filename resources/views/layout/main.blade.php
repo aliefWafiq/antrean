@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="{{ asset('style/style.css') }}">
 </head>
 
-<body style="background-color: #FFFAFA;">
-    <div class="h-screen d-flex flex-column align-items-center">
+<body style="background-color: #FFFFF0;">
+    <div class="h-screen d-flex justify-content-center align-items-center">
         @yield('content')
     </div>
 </body>
