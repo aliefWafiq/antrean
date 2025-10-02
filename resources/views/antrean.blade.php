@@ -81,8 +81,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const antreanId = parseInt("{{ $dataAntrean->id }}");
 
+        console.log(`[STATUS] Halaman siap. Mencoba mendengarkan di channel: antrean.${antreanId}`);
+
+        window.Echo.connector.pusher.connection.bind('state_change', function(states) {
+            console.log("[KONEKSI] Status koneksi Pusher berubah dari:", states.previous, "ke:", states.current);
+        });
+
         window.Echo.channel(`antrean.${antreanId}`)
             .listen('QueueCalled', (event) => {
+                console.log('[SINYAL DITERIMA] Event QueueCalled diterima:', event);
                 window.location.href = '/';
             });
     });

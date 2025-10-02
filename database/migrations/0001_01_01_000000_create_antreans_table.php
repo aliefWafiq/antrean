@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamp('updated_at');
             $table->timestamp('created_at');
 
-            $table->unique(['tiketAntrean']);
+            $table->unique(['tiketAntrean', 'tanggal_sidang']);
         });
 
         Schema::create('sessions', function (Blueprint $table) {
