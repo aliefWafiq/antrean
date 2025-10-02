@@ -18,6 +18,7 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css')}}">
     <link rel="stylesheet" href="{{ asset('style/style.css') }}">
+    @vite('resources/js/app.js')
 </head>
 
 <body style="background-color: #FFFFF0;">

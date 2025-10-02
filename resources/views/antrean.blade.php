@@ -75,4 +75,17 @@
     });
 </script>
 @endif
+
+@if ($dataAntrean && $dataAntrean->status === 'menunggu')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const antreanId = parseInt("{{ $dataAntrean->id }}");
+
+        window.Echo.channel(`antrean.${antreanId}`)
+            .listen('QueueCalled', (event) => {
+                window.location.href = '/';
+            });
+    });
+</script>
+@endif
 @endpush
