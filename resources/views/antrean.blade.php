@@ -7,7 +7,35 @@
         </div>
         @if ($dataAntrean)
         <div class="w-100 h-100 px-3 mt-4">
-            <div class="card-antrean py-4 w-100 h-auto mt-2" style="background-color: #FFFFFF; border-radius: 16px;">
+            <div class="col-12 p-0" style="color: #01421A;">
+                <div class="d-flex">
+                    <div>
+                        <img src="{{ asset('img/logo.png') }}" alt="ambil antrean">
+                    </div>
+                    <div class="py-2">
+                        <h5 class="mx-3">SIAGA</h5>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4>Selamat datang</h4>
+                    <h4>{{ $dataAntrean->namaLengkap }}</h4>
+                </div>
+            </div>
+            <div class="d-flex col-12 p-0 mt-4">
+                <a href="/ubahJamSidang" class="button-antrean p-4">
+                    <div class="h-50">
+                        <img src="{{ asset('img/icon.svg - 2025-09-20T191441.386 1.png') }}" alt="jam sidang">
+                    </div>
+                    <h6 class="mt-4">Ajukan <br> Jam Sidang</h6>
+                </a>
+                <div class="button-antrean p-4 ml-4">
+                    <div class="h-50 d-flex align-items-center">
+                        <img src="{{ asset('img/Group.png') }}" alt="ambil antrean">
+                    </div>
+                    <h6 class="mt-4">Ambil <br> Antrean</h6>
+                </div>
+            </div>
+            <div class="card-antrean py-4 w-100 h-auto mt-4" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
                     <h5>Tiket Antrean Kamu</h5>
                     <h1>{{ $dataAntrean->tiketAntrean }}</h1>
@@ -81,15 +109,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         const antreanId = parseInt("{{ $dataAntrean->id }}");
 
-        console.log(`[STATUS] Halaman siap. Mencoba mendengarkan di channel: antrean.${antreanId}`);
-
-        window.Echo.connector.pusher.connection.bind('state_change', function(states) {
-            console.log("[KONEKSI] Status koneksi Pusher berubah dari:", states.previous, "ke:", states.current);
-        });
+        // window.Echo.connector.pusher.connection.bind('state_change', function(states) {
+        //     console.log("[KONEKSI] Status koneksi Pusher berubah dari:", states.previous, "ke:", states.current);
+        // });
 
         window.Echo.channel(`antrean.${antreanId}`)
             .listen('QueueCalled', (event) => {
-                console.log('[SINYAL DITERIMA] Event QueueCalled diterima:', event);
                 window.location.href = '/';
             });
     });

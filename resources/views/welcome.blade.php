@@ -16,8 +16,8 @@
     </div>
 
     <div class="py-3 px-3">
-        <a href="/ambil-antrean" class="btn btn-buat-antrean w-100 py-3">
-            Buat Antrean
+        <a href="/login" class="btn btn-buat-antrean w-100 py-3">
+            Login
         </a>
     </div>
 </div>

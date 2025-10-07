@@ -9,6 +9,25 @@
     background-color: white;
 }
 
+.button-antrean {
+    border-radius: 16px;
+    background-color: white;
+    width: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-weight: 600;
+    color: black;
+}
+
+.button-antrean:hover {
+    cursor: pointer;
+    color: black;
+    box-shadow: 2px 2px 2px 1px rgb(0 0 0 / 20%);
+}
+
 .main-text {
     font-weight: 500;
 }
@@ -41,18 +60,20 @@
 .dashed-line {
     flex-grow: 1;
     height: 1px;
-    background-image: repeating-linear-gradient(to right,
-            #ccc 0,
-            #ccc 30px,
-            transparent 5px,
-            transparent 40px);
+    background-image: repeating-linear-gradient(
+        to right,
+        #ccc 0,
+        #ccc 30px,
+        transparent 5px,
+        transparent 40px
+    );
 }
 
 .circle-left,
 .circle-right {
     width: 30px;
     height: 30px;
-    background-color: #F5F7FA;
+    background-color: #E7F9CF;
     border-radius: 50%;
     position: absolute;
     top: 21%;
@@ -115,7 +136,7 @@
     max-width: 100%;
     margin: 0;
     transform: translateY(100%);
-    transition: transform .3s ease-out;
+    transition: transform 0.3s ease-out;
 }
 
 .modal.show.modal-bottom .modal-dialog {
@@ -154,7 +175,7 @@
 
     .bg-image {
         min-width: 383px;
-        max-width: 400px;
+        max-width: 300px;
     }
 
     .modal.fade.modal-bottom .modal-dialog {

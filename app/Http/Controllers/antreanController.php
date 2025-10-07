@@ -15,6 +15,16 @@ class antreanController extends Controller
         return view('welcome');
     }
 
+    public function login()
+    {
+        return view('login');
+    }
+
+    public function ubahJamSidang()
+    {
+        return view('ubahjam');
+    }
+
     public function antrean($id = null)
     {
         $dataAntrean = null;
