@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\antreans;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Contracts\Session\Session;
 
 class antreanController extends Controller
 {
@@ -15,7 +17,7 @@ class antreanController extends Controller
         return view('welcome');
     }
 
-    public function login()
+    public function loginView()
     {
         return view('login');
     }
@@ -25,15 +27,26 @@ class antreanController extends Controller
         return view('ubahjam');
     }
 
-    public function antrean($id = null)
-    {
-        $dataAntrean = null;
-        if ($id) {
-            $dataAntrean = antreans::find($id);
+    public function login(Request $request) {
+        $data = array(
+            'nomorHp' => $request->input('noHp'),
+            'password' => $request->input('password')
+        );
+
+        if(Auth::attempt($data)) {
+            return redirect('/antrean');
+        }else{
+            // Session::flash('error', 'Nomor hp atau password salah');
+            return redirect('/')->with('error', 'Nomor Hp atau Password salah');
         }
-        return view('antrean', [
-            'dataAntrean' => $dataAntrean
-        ]);
+    }
+
+    public function antrean()
+    {
+        $userId = Auth::id();
+        $dataAntrean = antreans::where('id', $userId)->latest()->first();
+
+        return view('antrean', ['dataAntrean' => $dataAntrean]);
     }
 
     public function ambilAntrean()

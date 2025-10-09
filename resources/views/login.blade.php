@@ -8,16 +8,16 @@
             </h5>
         </a>
     </div>
-    <form action="/store/buatAntrean" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
+    <form action="/login/action" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
         @csrf
         <div class="w-100 h-auto">
             <div class="mb-4">
-                <label for="nikNoHp" class="form-label">NIK atau Nomor HP</label>
-                <input type="number" class="form-input w-100" id="nikNoHp" name="nikNoHp" placeholder="Masukkan NIK atau Nomor HP" required>
+                <label for="noHp" class="form-label">NIK atau Nomor HP</label>
+                <input type="numbertext" class="form-input w-100" id="noHp" name="noHp" placeholder="Masukkan NIK atau Nomor HP" required>
             </div>
             <div class="mb-4">
                 <label for="password" class="form-label">Password</label>
-                <input type="text" class="form-input w-100" id="password" name="password" placeholder="Masukkan password" required>
+                <input type="password" class="form-input w-100" id="password" name="password" placeholder="Masukkan password" required>
             </div>
         </div>
         <div class="py-3 w-100 flex-grow-1 d-flex align-items-end py-3">

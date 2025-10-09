@@ -18,6 +18,8 @@ class antreans extends Authenticatable
      */
     protected $fillable = [
         'namaLengkap',
+        'nomorHp',
+        'password',
         'noPerkara',
         'jenisPerkara',
         'tiketAntrean',

@@ -26,7 +26,6 @@ class SmsController extends Controller
         $phoneNumber = '6288279137205'; // Ganti dengan nomor tujuanmu
 
         try {
-            // Mengirim notifikasi ke nomor yang dituju
             Notification::route('vonage', $phoneNumber)->notify(new SendTestSms());
 
             return "SMS berhasil dikirim ke " . $phoneNumber;
