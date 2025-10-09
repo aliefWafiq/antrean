@@ -37,7 +37,7 @@ class antreanController extends Controller
             return redirect('/antrean');
         }else{
             // Session::flash('error', 'Nomor hp atau password salah');
-            return redirect('/')->with('error', 'Nomor Hp atau Password salah');
+            return redirect('/login')->with('error', 'Nomor Hp atau Password salah');
         }
     }
 

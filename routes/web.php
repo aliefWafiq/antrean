@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\antreanController;
 use App\Http\Controllers\SmsController;
 
-Route::get('/', [antreanController::class, 'home']);
-Route::get('/antrean', [antreanController::class, 'antrean']);
-Route::get('/ambil-antrean', [antreanController::class, 'ambilAntrean']);
 Route::get( '/login', [antreanController::class, 'loginView']);
-Route::get('/ubahJamSidang', [antreanController::class, 'ubahJamSidang']);
+Route::get('/', [antreanController::class, 'home']);
+Route::get('/antrean', [antreanController::class, 'antrean'])->name('antrean')->middleware('auth');
+Route::get('/ubahJamSidang', [antreanController::class, 'ubahJamSidang'])->name('ubahJamSidang')->middleware('auth');
+Route::get('/ambil-antrean', [antreanController::class, 'ambilAntrean']);
 
 Route::get("/sendsms", [SmsController::class, 'sendSms']);
 

@@ -26,3 +26,10 @@
     </form>
 </div>
 @endsection
+@push('script')
+@if (session('error'))
+<script>
+    alert('Nomor Hp atau Password salah')
+</script>
+@endif
+@endpush
