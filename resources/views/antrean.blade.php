@@ -35,7 +35,7 @@
                     <h6 class="mt-4">Ambil <br> Antrean</h6>
                 </div>
             </div>
-            <div class="card-antrean py-4 w-100 h-auto mt-4" style="background-color: #FFFFFF; border-radius: 16px;">
+            <div class="card-antrean py-4 w-100 h-auto my-4" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
                     <h5>Tiket Antrean Kamu</h5>
                     <h1>{{ $dataAntrean->tiketAntrean }}</h1>
@@ -74,11 +74,9 @@
         </div>
         @endif
     </div>
-    <div class="py-3 w-100 px-3">
-        <a href="/ambil-antrean" class="btn btn-buat-antrean w-100 py-3">Buat Antrean</a>
-    </div>
+
     <div class="modal fade modal-bottom" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-        <div class="modal-dialog"> <!-- Removed modal-dialog-centered -->
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body text-center">
                     <img src="{{ asset('img/popup-sucess.png') }}" alt="Success Icon" width="120" class="mb-4">

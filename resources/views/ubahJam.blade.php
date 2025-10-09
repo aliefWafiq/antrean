@@ -2,7 +2,7 @@
 @section('content')
 <div class="h-screen d-block overflow-auto container-card d-flex flex-column" style="background-color: white;">
     <div class="w-100 py-5 px-3">
-        <a href="/" style="color: black;">
+        <a href="/antrean" style="color: black;">
             <h5 class="d-flex align-items-center" style="gap: 15px;">
                 <i class="fa-solid fa-arrow-left"></i>
                 Ambil Antrean
