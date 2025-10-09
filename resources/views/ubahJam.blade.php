@@ -16,8 +16,8 @@
                 <label for="inputState">Slot Jam Tersedia</label>
                 <select id="inputState" name="slotJamTersedia" class="form-input w-100">
                     <option selected>Pilih Jam</option>
-                    <option value="gugatan">Gugatan</option>
-                    <option value="permohonan">Permohonan</option>
+                    <option value="08:00">08:00</option>
+                    <option value="09:00">09:00</option>
                 </select>
             </div>
         </div>
