@@ -5,6 +5,9 @@
         <div class="w-100 d-flex justify-content-center" style="position: absolute; z-index: 0;">
             <img src="{{ asset('img/--background.png') }}" alt="background" class="img-fluid object-fit-cover bg-image">
         </div>
+        <div class="alert alert-success mt-2 position-absolute d-none" role="alert" id="suksesAmbilAntrean" style="z-index: 50;">
+            Antrean telah diambil, silahkan tunggu di ruang tunggu
+        </div>
         @if ($dataAntrean)
         <div class="w-100 h-100 px-3 mt-4">
             <div class="col-12 p-0" style="color: #01421A;">
@@ -28,12 +31,16 @@
                     </div>
                     <h6 class="mt-4">Ajukan <br> Jam Sidang</h6>
                 </a>
-                <div class="button-antrean p-4 ml-4">
-                    <div class="h-50 d-flex align-items-center">
-                        <img src="{{ asset('img/Group.png') }}" alt="ambil antrean">
-                    </div>
-                    <h6 class="mt-4">Ambil <br> Antrean</h6>
-                </div>
+                <form action="/ambil-antrean/{{ $dataAntrean->id }}" method="POST" class="ml-4">
+                    @csrf
+                    @method('PUT')
+                    <button type="submit" class="button-antrean p-4 h-100">
+                        <div class="h-50 d-flex align-items-center">
+                            <img src="{{ asset('img/Group.png') }}" alt="ambil antrean">
+                        </div>
+                        <h6 class="mt-4">Ambil <br> Antrean</h6>
+                    </button>
+                </form>
             </div>
             <div class="card-antrean py-4 w-100 h-auto my-4" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
@@ -80,14 +87,19 @@
             <div class="modal-content">
                 <div class="modal-body text-center">
                     <img src="{{ asset('img/popup-sucess.png') }}" alt="Success Icon" width="120" class="mb-4">
-                    <h4 class="fw-bold mb-3">Buat Antrean Berhasil</h4>
+                    <h4 class="fw-bold mb-3">Ubah Jam Sidang Berhasil</h4>
                     <p class="text-muted mb-4">
-                        Nomor Antrean Kamu berhasil dibuat, silahkan lihat e-tiket di halaman beranda dan tunggu di ruang sidang untuk menunggu antrean.
+                        Nomor Antrean Kamu berhasil dibuat, silahkan lihat e-tiket di halaman beranda dan tunggu di ruang sidang untuk menunggu antrean
                     </p>
                     <button type="button" class="btn btn-success-custom" data-dismiss="modal">Kembali ke Beranda</button>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="btn-logout d-flex justify-content-end px-3">
+        <a href="/logout" class="btn btn-danger">
+            Log out
+        </a>
     </div>
 </div>
 @endsection
@@ -96,9 +108,19 @@
 @if (session('showModal'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        let successModal = new bootstrap.Modal(document.getElementById('successModal'));
         successModal.show();
     });
+</script>
+@endif
+
+@if(session('showSucess'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let suksesAmbilAntrean = document.getElementById('suksesAmbilAntrean')
+        suksesAmbilAntrean.classList.remove('d-none')
+        suksesAmbilAntrean.classList.add('alert-slide-down');
+    })
 </script>
 @endif
 

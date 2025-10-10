@@ -20,12 +20,38 @@
     text-align: center;
     font-weight: 600;
     color: black;
+    border: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-slide-down {
+    animation-name: slideDown;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
 }
 
 .button-antrean:hover {
     cursor: pointer;
     color: black;
     box-shadow: 2px 2px 2px 1px rgb(0 0 0 / 20%);
+}
+
+.btn-logout {
+    position: sticky;
+    bottom: 20px;
+    z-index: 100;
 }
 
 .main-text {
@@ -60,20 +86,18 @@
 .dashed-line {
     flex-grow: 1;
     height: 1px;
-    background-image: repeating-linear-gradient(
-        to right,
-        #ccc 0,
-        #ccc 30px,
-        transparent 5px,
-        transparent 40px
-    );
+    background-image: repeating-linear-gradient(to right,
+            #ccc 0,
+            #ccc 30px,
+            transparent 5px,
+            transparent 40px);
 }
 
 .circle-left,
 .circle-right {
     width: 30px;
     height: 30px;
-    background-color: #E7F9CF;
+    background-color: #e7f9cf;
     border-radius: 50%;
     position: absolute;
     top: 21%;

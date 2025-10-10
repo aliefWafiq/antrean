@@ -9,8 +9,9 @@
             </h5>
         </a>
     </div>
-    <form action="/store/buatAntrean" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
+    <form action="/action/ubahJamSidang/{{ $dataAntrean->id }}" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
         @csrf
+        @method('PUT')
         <div class="w-100 h-auto">
             <div class="mb-4">
                 <label for="inputState">Slot Jam Tersedia</label>
@@ -22,7 +23,7 @@
             </div>
         </div>
         <div class="py-3 w-100 flex-grow-1 d-flex align-items-end py-3">
-            <button type="submit" class="btn btn-buat-antrean w-100 py-3">Buat Antrean</button>
+            <button type="submit" class="btn btn-buat-antrean w-100 py-3">Konfirmasi</button>
         </div>
     </form>
 </div>
