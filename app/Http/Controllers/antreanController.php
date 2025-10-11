@@ -40,21 +40,21 @@ class antreanController extends Controller
 
         if (Auth::attempt($data)) {
             try {
-                $phoneNumber = "6281363055921";
-                $user = Auth::user();
+                // $phoneNumber = "6281363055921";
+                // $user = Auth::user();
 
-                $kode_otp = random_int(100000, 999999);
-                otps::create([
-                    'id_user' => $user->id,
-                    'kodeOtp' => $kode_otp,
-                    'expired_at' => now()->addMinutes(5),
-                    'status' => 'aktif'
-                ]);
+                // $kode_otp = random_int(100000, 999999);
+                // otps::create([
+                //     'id_user' => $user->id,
+                //     'kodeOtp' => $kode_otp,
+                //     'expired_at' => now()->addMinutes(5),
+                //     'status' => 'aktif'
+                // ]);
 
-                Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($kode_otp));
+                // Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($kode_otp));
 
-                Auth::logout();
-                $request->session()->put('user_id', $user->id);
+                // Auth::logout();
+                // $request->session()->put('user_id', $user->id);
 
                 return redirect('/antrean');
             } catch (\Exception $e) {
@@ -102,6 +102,10 @@ class antreanController extends Controller
         $antrean->update([
             'statusAmbilAntrean' => 'sudah ambil'
         ]);
+
+        $phoneNumber = "6281363055921";
+        $pesan = "SMS dikirim";
+        Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($pesan));
 
         return redirect('/antrean')->with('showSucess', true);
     }
