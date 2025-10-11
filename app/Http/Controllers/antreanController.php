@@ -28,7 +28,7 @@ class antreanController extends Controller
         $antreanId = Auth::id();
         $dataAntrean = antreans::where('id', $antreanId)->latest()->first();
 
-        return view('ubahjam', ['dataAntrean' => $dataAntrean]);
+        return view('ubahJam', ['dataAntrean' => $dataAntrean]);
     }
 
     public function login(Request $request)
