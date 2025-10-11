@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\antreans;
+use App\Models\otps;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Illuminate\Contracts\Session\Session;
+use App\Notifications\SendTestSms;
+use Illuminate\Support\Facades\Notification;
 
 class antreanController extends Controller
 {
@@ -38,11 +39,54 @@ class antreanController extends Controller
         );
 
         if (Auth::attempt($data)) {
-            return redirect('/antrean');
+            try {
+                $phoneNumber = "6281363055921";
+                $user = Auth::user();
+
+                $kode_otp = random_int(100000, 999999);
+                otps::create([
+                    'id_user' => $user->id,
+                    'kodeOtp' => $kode_otp,
+                    'expired_at' => now()->addMinutes(5),
+                    'status' => 'aktif'
+                ]);
+
+                Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($kode_otp));
+
+                Auth::logout();
+                $request->session()->put('user_id', $user->id);
+
+                return redirect('/antrean');
+            } catch (\Exception $e) {
+                return "Gagal mengirim SMS: " . $e->getMessage();
+            }
         } else {
             // Session::flash('error', 'Nomor hp atau password salah');
             return redirect('/login')->with('error', 'Nomor Hp atau Password salah');
         }
+    }
+
+    public function verifyOtp(Request $request) {
+        $request->validate(['otp' => 'required|numeric']);
+
+        $userId = $request->session()->get('user_id');
+
+        $otp = otps::where('user_id', $userId)
+                    ->where('kodeOtp', $request->otp)
+                    ->where('expired_at', '>', now())
+                    ->where('status', 'aktif')
+                    ->first();
+        
+        if($otp) {
+            $otp->update(['status' => 'sudah dipakai']);
+
+            Auth::loginUsingId($userId);
+            $request->session()->forget('user_id');
+
+            return redirect('/antrean');
+        }
+
+        return back()->with('error', 'Kode OTP tidak valid atau sudah kadaluarsa');
     }
 
     public function antrean()
@@ -62,13 +106,14 @@ class antreanController extends Controller
         return redirect('/antrean')->with('showSucess', true);
     }
 
-    public function editJamSidang(Request $request, antreans $antrean) {
+    public function editJamSidang(Request $request, antreans $antrean)
+    {
         $request->validate([
             'slotJamTersedia' => 'required'
         ]);
 
         $jamSidang = Carbon::parse($request->slotJamTersedia);
-        
+
 
         $antrean->update([
             'jam_perkiraan' => $jamSidang->format('H:i')

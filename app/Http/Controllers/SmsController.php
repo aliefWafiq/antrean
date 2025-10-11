@@ -23,16 +23,15 @@ class SmsController extends Controller
         //                                     ]
         //                             );
 
-        $phoneNumber = '6288279137205'; // Ganti dengan nomor tujuanmu
+        // $phoneNumber = '6281363055921'; // Ganti dengan nomor tujuanmu
 
-        try {
-            Notification::route('vonage', $phoneNumber)->notify(new SendTestSms());
+        // try {
+        //     Notification::route('vonage', $phoneNumber)->notify(new SendTestSms());
 
-            return "SMS berhasil dikirim ke " . $phoneNumber;
-        } catch (\Exception $e) {
-            // Tangani jika ada error
-            return "Gagal mengirim SMS: " . $e->getMessage();
-        }
+        //     return "SMS berhasil dikirim ke " . $phoneNumber;
+        // } catch (\Exception $e) {
+        //     return "Gagal mengirim SMS: " . $e->getMessage();
+        // }
     }
 }
 

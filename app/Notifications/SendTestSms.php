@@ -11,9 +11,11 @@ class SendTestSms extends Notification
 {
     use Queueable;
 
-    public function __construct()
+    public $kode_otp;
+
+    public function __construct($kode_otp)
     {
-        //
+        $this->kode_otp = $kode_otp;
     }
 
     public function via(mixed $notifiable): array
@@ -24,6 +26,6 @@ class SendTestSms extends Notification
     public function toVonage(mixed $notifiable): VonageMessage
     {
         return (new VonageMessage)
-                    ->content('Ini adalah SMS tes dari aplikasi Laravel kamu. Berhasil! ✅');
+                    ->content('Ini adalah kode otp kamu'. $this->kode_otp);
     }
 }

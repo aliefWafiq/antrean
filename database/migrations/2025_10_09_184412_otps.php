@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::create('otp', function (Blueprint $table) {
+        Schema::create('otps', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('id_user')->constrained('antreans');
             $table->integer('kodeOtp');
+            $table->time('expired_at');
+            $table->enum('status', ['aktif', 'expired', 'sudah ditukar'])->default('aktif');   
             $table->timestamp('updated_at');
             $table->timestamp('created_at');
 

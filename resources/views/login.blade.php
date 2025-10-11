@@ -13,7 +13,7 @@
         <div class="w-100 h-auto">
             <div class="mb-4">
                 <label for="noHp" class="form-label">NIK atau Nomor HP</label>
-                <input type="numbertext" class="form-input w-100" id="noHp" name="noHp" placeholder="Masukkan NIK atau Nomor HP" required>
+                <input type="text" class="form-input w-100" id="noHp" name="noHp" placeholder="Masukkan NIK atau Nomor HP" required>
             </div>
             <div class="mb-4">
                 <label for="password" class="form-label">Password</label>

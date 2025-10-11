@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class otp extends Model
+class otps extends Model
 {
     protected $fillable = [
-        'kodeOtp'
+        'id_user',
+        'kodeOtp',
+        'expired_at',
+        'status'
     ];
 }
