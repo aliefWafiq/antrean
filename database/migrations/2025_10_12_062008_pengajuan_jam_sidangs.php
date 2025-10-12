@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pengajuan_jam_sidangs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('id_user')->constrained('antreans');
-            $table->time('jam_perkiraan');
+            $table->time('jam_sidang');
             $table->enum('status', ['menunggu', 'ditolak', 'diterima'])->default('menunggu');
             $table->timestamp('updated_at');
             $table->timestamp('created_at');
