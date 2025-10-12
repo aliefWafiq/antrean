@@ -6,7 +6,6 @@ use App\Models\antreans;
 use App\Models\otps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use App\Notifications\SendTestSms;
 use Illuminate\Support\Facades\Notification;
 
@@ -21,14 +20,6 @@ class antreanController extends Controller
     public function loginView()
     {
         return view('login');
-    }
-
-    public function ubahJamSidang()
-    {
-        $antreanId = Auth::id();
-        $dataAntrean = antreans::where('id', $antreanId)->latest()->first();
-
-        return view('ubahJam', ['dataAntrean' => $dataAntrean]);
     }
 
     public function login(Request $request)
@@ -97,7 +88,7 @@ class antreanController extends Controller
         return view('antrean', ['dataAntrean' => $dataAntrean]);
     }
 
-    public function ambilAntrean(Request $request, antreans $antrean)
+    public function ambilAntrean(antreans $antrean)
     {
         $antrean->update([
             'statusAmbilAntrean' => 'sudah ambil'
@@ -108,22 +99,6 @@ class antreanController extends Controller
         Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($pesan));
 
         return redirect('/antrean')->with('showSucess', true);
-    }
-
-    public function editJamSidang(Request $request, antreans $antrean)
-    {
-        $request->validate([
-            'slotJamTersedia' => 'required'
-        ]);
-
-        $jamSidang = Carbon::parse($request->slotJamTersedia);
-
-
-        $antrean->update([
-            'jam_perkiraan' => $jamSidang->format('H:i')
-        ]);
-
-        return redirect('/antrean')->with('showModal', true);
     }
 
     public function logout(Request $request)
