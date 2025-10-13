@@ -14,7 +14,7 @@ return new class extends Migration
 
         Schema::create('otps', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('id_user')->constrained('antreans');
+            $table->foreignId('id_user')->constrained('antreans')->onDelete('cascade');
             $table->integer('kodeOtp');
             $table->time('expired_at');
             $table->enum('status', ['aktif', 'expired', 'sudah ditukar'])->default('aktif');   

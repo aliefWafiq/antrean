@@ -29,7 +29,7 @@
                     <div class="h-50">
                         <img src="{{ asset('img/icon.svg - 2025-09-20T191441.386 1.png') }}" alt="jam sidang">
                     </div>
-                    <h6 class="mt-4">Ajukan <br> Jam Sidang</h6>
+                    <h6 class="mt-4">Request <br> Jam Sidang</h6>
                 </a>
                 <form action="/ambil-antrean/{{ $dataAntrean->id }}" method="POST" class="ml-4">
                     @csrf

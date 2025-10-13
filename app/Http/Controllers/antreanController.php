@@ -22,57 +22,64 @@ class antreanController extends Controller
         return view('login');
     }
 
+    public function formVerify() {
+        if (!session()->has('otp_user_id')){
+            return redirect('/login');
+        }
+        return view('verifyOtp');
+    }
+
     public function login(Request $request)
     {
-        $data = array(
-            'nomorHp' => $request->input('noHp'),
-            'password' => $request->input('password')
-        );
+        $request->validate(['noHp' => 'required']);
 
-        if (Auth::attempt($data)) {
-            try {
-                // $phoneNumber = "6281363055921";
-                // $user = Auth::user();
+        $user = antreans::where('nomorHp', $request->noHp)->first();
+        $expiredTime = now()->addMinutes(5);
 
-                // $kode_otp = random_int(100000, 999999);
-                // otps::create([
-                //     'id_user' => $user->id,
-                //     'kodeOtp' => $kode_otp,
-                //     'expired_at' => now()->addMinutes(5),
-                //     'status' => 'aktif'
-                // ]);
+        try {
+            $kode_otp = random_int(100000, 999999);
+            otps::create([
+                'id_user' => $user->id,
+                'kodeOtp' => $kode_otp,
+                'expired_at' => $expiredTime,
+                'status' => 'aktif'
+            ]);
 
-                // Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($kode_otp));
+            Notification::route('vonage', $user->nomorHp);
 
-                // Auth::logout();
-                // $request->session()->put('user_id', $user->id);
+            $request->session()->put('otp_user_id', $user->id);
+            $request->session()->put('otp_phone_number', $user->nomorHp);
 
-                return redirect('/antrean');
-            } catch (\Exception $e) {
-                return "Gagal mengirim SMS: " . $e->getMessage();
-            }
-        } else {
-            // Session::flash('error', 'Nomor hp atau password salah');
-            return redirect('/login')->with('error', 'Nomor Hp atau Password salah');
+            return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
+        }catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengirim SMS: '. $e->getMessage());
         }
     }
 
-    public function verifyOtp(Request $request) {
+    public function verifyOtp(Request $request)
+    {
         $request->validate(['otp' => 'required|numeric']);
 
-        $userId = $request->session()->get('user_id');
+        $userId = $request->session()->get('otp_user_id');
 
-        $otp = otps::where('user_id', $userId)
-                    ->where('kodeOtp', $request->otp)
-                    ->where('expired_at', '>', now())
-                    ->where('status', 'aktif')
-                    ->first();
-        
-        if($otp) {
-            $otp->update(['status' => 'sudah dipakai']);
+        if (!$userId) {
+            return redirect('/login')->with('error', 'Silahkan login lagi');
+        }
+
+        $otp = otps::where('id_user', $userId)
+            ->where('kodeOtp', $request->otp)
+            ->where('expired_at', '>', now())
+            ->where('status', 'aktif')
+            ->first();
+
+        if ($otp) {
+            $otp->update(['status' => 'sudah ditukar']);
 
             Auth::loginUsingId($userId);
-            $request->session()->forget('user_id');
+            $request->session()->forget('otp_user_id');
+            $request->session()->forget('otp_phone_number');
+
+            $request->session()->regenerate();
 
             return redirect('/antrean');
         }
