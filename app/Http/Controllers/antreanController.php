@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\SendTestSms;
 use Illuminate\Support\Facades\Notification;
+use Twilio\Rest\Client;
 
 class antreanController extends Controller
 {
@@ -22,8 +23,9 @@ class antreanController extends Controller
         return view('login');
     }
 
-    public function formVerify() {
-        if (!session()->has('otp_user_id')){
+    public function formVerify()
+    {
+        if (!session()->has('otp_user_id')) {
             return redirect('/login');
         }
         return view('verifyOtp');
@@ -31,29 +33,55 @@ class antreanController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate(['noHp' => 'required']);
+        // $request->validate(['noHp' => 'required']);
+        $request->validate([
+            'noHp' => 'required',
+            'password' => 'required'
+        ]);
 
-        $user = antreans::where('nomorHp', $request->noHp)->first();
-        $expiredTime = now()->addMinutes(5);
+        $antrean = antreans::where('nomorHp', $request->noHp)->first();
 
-        try {
-            $kode_otp = random_int(100000, 999999);
-            otps::create([
-                'id_user' => $user->id,
-                'kodeOtp' => $kode_otp,
-                'expired_at' => $expiredTime,
-                'status' => 'aktif'
-            ]);
-
-            Notification::route('vonage', $user->nomorHp);
-
-            $request->session()->put('otp_user_id', $user->id);
-            $request->session()->put('otp_phone_number', $user->nomorHp);
-
-            return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
-        }catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengirim SMS: '. $e->getMessage());
+        if($antrean && $request->password === $antrean->password){
+            Auth::login($antrean);
+            $request->session()->regenerate();
+            return redirect('/antrean');
         }
+
+        return back()->with('error', 'Nomor Hp atau password salah');
+
+        // $user = antreans::where('nomorHp', $request->noHp)->first();
+        // $expiredTime = now()->addMinutes(5);
+
+        // try {
+        // $kode_otp = random_int(100000, 999999);
+        // otps::create([
+        //     'id_user' => $user->id,
+        //     'kodeOtp' => $kode_otp,
+        //     'expired_at' => $expiredTime,
+        //     'status' => 'aktif'
+        // ]);
+
+        // $receiverNumber = '+18777804236';
+        // $receiverNumber = $user->nomorHp;
+        // $message = 'Kode OTP Anda ' . $kode_otp;
+
+        // $sid = env('TWILIO_SID');
+        // $token = env('TWILIO_TOKEN');
+        // $fromNumber = env('TWILIO_FROM');
+
+        // $client = new Client($sid, $token);
+        // $client->messages->create($receiverNumber, [
+        //     'from' => $fromNumber,
+        //     'body' => $message
+        // ]);
+
+        // $request->session()->put('otp_user_id', $user->id);
+        // $request->session()->put('otp_phone_number', $user->nomorHp);
+
+        //     return redirect('/antrean')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
+        // } catch (\Exception $e) {
+        //     return back()->with('error', 'Gagal mengirim SMS: ' . $e->getMessage());
+        // }
     }
 
     public function verifyOtp(Request $request)
@@ -101,9 +129,19 @@ class antreanController extends Controller
             'statusAmbilAntrean' => 'sudah ambil'
         ]);
 
-        $phoneNumber = "6281363055921";
-        $pesan = "SMS dikirim";
-        Notification::route('vonage', $phoneNumber)->notify(new SendTestSms($pesan));
+        $receiverNumber = '+18777804236';
+        // $receiverNumber = $user->nomorHp;
+        $message = 'Sukses mengambil antrean, silahkan menunggu di ruang tunggu';
+
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
+        $fromNumber = env('TWILIO_FROM');
+
+        $client = new Client($sid, $token);
+        $client->messages->create($receiverNumber, [
+            'from' => $fromNumber,
+            'body' => $message
+        ]);
 
         return redirect('/antrean')->with('showSucess', true);
     }

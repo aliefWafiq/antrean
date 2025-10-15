@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Notification;
 
 class SmsController extends Controller
 {
-    public function sendSms()
-    {
+    // public function sendSms()
+    // {
         // $sid = getenv("TWILIO_SID");
         // $token = getenv("TWILIO_TOKEN");
         // $twilio = new Client($sid, $token);
@@ -32,7 +32,30 @@ class SmsController extends Controller
         // } catch (\Exception $e) {
         //     return "Gagal mengirim SMS: " . $e->getMessage();
         // }
+    // }
+
+    public function sendSms()
+    {
+        $receiverNumber = '+18777804236'; 
+        $message = 'hi testing';
+
+        $sid = env('TWILIO_SID');
+        $token = env('TWILIO_TOKEN');
+        $fromNumber = env('TWILIO_FROM');
+
+        try {
+            $client = new Client($sid, $token);
+            $client->messages->create($receiverNumber, [
+                'from' => $fromNumber,
+                'body' => $message
+            ]);
+
+            return 'SMS Sent Successfully.';
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
     }
 }
 
 // +6288279137205
+// +18777804236 

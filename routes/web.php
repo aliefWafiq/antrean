@@ -11,6 +11,7 @@ Route::get('/antrean', [antreanController::class, 'antrean'])->name('antrean')->
 Route::get('/ubahJamSidang', [pengajuan_jam_sidangController::class, 'ubahJamSidang'])->name('ubahJamSidang')->middleware('auth');
 Route::get('/logout', [antreanController::class, 'logout']);
 Route::get('/verify-otp', [antreanController::class, 'formVerify']);
+Route::get('/kirim-ulang-otp', [SmsController::class, 'kirimUlangOtp']);
 
 Route::put('/ambil-antrean/{antrean}', [antreanController::class, 'ambilAntrean']);
 Route::put('/action/ubahJamSidang/{antrean}', [pengajuan_jam_sidangController::class, 'editJamSidang']);

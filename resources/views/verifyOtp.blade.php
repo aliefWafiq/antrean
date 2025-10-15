@@ -15,10 +15,10 @@
                 <label for="otp" class="form-label">Kode OTP</label>
                 <input type="number" class="form-input w-100" id="otp" name="otp" placeholder="Masukkan kode OTP" required>
             </div>
-            <!-- <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-input w-100" id="password" name="password" placeholder="Masukkan password" required>
-            </div> -->
+            <div class="d-flex">
+                <p>Kode OTP salah?</p>
+                <a href="/kirim-ulang-otp" class="mx-1" style="font-weight: bold;"> Kirim Ulang</a>
+            </div>
         </div>
         <div class="py-3 w-100 flex-grow-1 d-flex align-items-end py-3">
             <button type="submit" class="btn btn-buat-antrean w-100 py-3">Login</button>

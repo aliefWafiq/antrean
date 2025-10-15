@@ -11,14 +11,19 @@
     <form action="/login/action" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
         @csrf
         <div class="w-100 h-auto">
-            <div class="mb-4">
-                <label for="noHp" class="form-label">NIK atau Nomor HP</label>
-                <input type="text" class="form-input w-100" id="noHp" name="noHp" placeholder="Masukkan NIK atau Nomor HP" required>
+            @if (session('error'))
+            <div class="alert alert-danger" role="alert">
+                Nomor Hp atau password salah
             </div>
-            <!-- <div class="mb-4">
+            @endif
+            <div class="mb-4">
+                <label for="noHp" class="form-label">Nomor HP</label>
+                <input type="text" class="form-input w-100" id="noHp" name="noHp" placeholder="Masukkan Nomor HP" required>
+            </div>
+            <div class="mb-4">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-input w-100" id="password" name="password" placeholder="Masukkan password" required>
-            </div> -->
+            </div>
         </div>
         <div class="py-3 w-100 flex-grow-1 d-flex align-items-end py-3">
             <button type="submit" class="btn btn-buat-antrean w-100 py-3">Login</button>
@@ -27,9 +32,9 @@
 </div>
 @endsection
 @push('script')
-@if (session('error'))
+<!-- @if (session('error'))
 <script>
     alert('Nomor Hp atau Password salah')
 </script>
-@endif
+@endif -->
 @endpush
