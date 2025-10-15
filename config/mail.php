@@ -15,6 +15,7 @@ return [
     */
 
     'default' => env('MAIL_MAILER', 'log'),
+    'sendgrid_api_key' => env('SENDGRID_API_KEY'),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,7 +36,9 @@ return [
     */
 
     'mailers' => [
-
+        'sendgrid' => [
+            'transport' => 'sendgrid'
+        ],
         'smtp' => [
             'transport' => 'smtp',
             'url' => env('MAIL_URL'),

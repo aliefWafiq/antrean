@@ -10,6 +10,8 @@
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "laravel/vonage-notification-channel": "^3.3",
+        "sendgrid/sendgrid": "^8.1",
+        "symfony/sendgrid-mailer": "^7.3",
         "twilio/sdk": "^8.8"
     },
     "require-dev": {

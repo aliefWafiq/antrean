@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendOtpEmail;
 use App\Models\antreans;
 use App\Models\otps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Notifications\SendTestSms;
-use Illuminate\Support\Facades\Notification;
+// use App\Notifications\SendTestSms;
+use Illuminate\Support\Facades\Mail;
+// use Illuminate\Support\Facades\Notification;
 use Twilio\Rest\Client;
+
 
 class antreanController extends Controller
 {
@@ -33,55 +36,58 @@ class antreanController extends Controller
 
     public function login(Request $request)
     {
-        // $request->validate(['noHp' => 'required']);
+        // $request->validate([
+        //     'noHp' => 'required',
+        //     'password' => 'required'
+        // ]);
+
         $request->validate([
-            'noHp' => 'required',
-            'password' => 'required'
+            'email' => 'required',
         ]);
 
-        $antrean = antreans::where('nomorHp', $request->noHp)->first();
+        
+        $data = antreans::where('email', $request->email)->first();
+        // dd($data);
 
-        if($antrean && $request->password === $antrean->password){
-            Auth::login($antrean);
-            $request->session()->regenerate();
-            return redirect('/antrean');
+        if (!$data) {
+            return back()->with('error', 'Email yang Anda masukkan tidak terdaftar.');
         }
 
-        return back()->with('error', 'Nomor Hp atau password salah');
-
         // $user = antreans::where('nomorHp', $request->noHp)->first();
-        // $expiredTime = now()->addMinutes(5);
+        $expiredTime = now()->addMinutes(5);
 
-        // try {
-        // $kode_otp = random_int(100000, 999999);
-        // otps::create([
-        //     'id_user' => $user->id,
-        //     'kodeOtp' => $kode_otp,
-        //     'expired_at' => $expiredTime,
-        //     'status' => 'aktif'
-        // ]);
+        try {
+            $kode_otp = random_int(100000, 999999);
+            otps::create([
+                'id_user' => $data->id,
+                'kodeOtp' => $kode_otp,
+                'expired_at' => $expiredTime,
+                'status' => 'aktif'
+            ]);
 
-        // $receiverNumber = '+18777804236';
-        // $receiverNumber = $user->nomorHp;
-        // $message = 'Kode OTP Anda ' . $kode_otp;
+            $email = new \SendGrid\Mail\Mail();
 
-        // $sid = env('TWILIO_SID');
-        // $token = env('TWILIO_TOKEN');
-        // $fromNumber = env('TWILIO_FROM');
+            $email->setFrom(config('mail.from.address'), config('mail.from.name'));
+            $email->setSubject("Kode Verifikasi Anda");
+            $email->addTo($data->email, $data->namaLengkap);
+            $email->addContent("text/plain", "Kode verifikasi Anda adalah: " . $kode_otp);
+            $email->addContent(
+                "text/html",
+                "<h1>Kode Verifikasi Anda</h1><p>Gunakan kode di bawah ini untuk login:</p><h2><strong>" . $kode_otp . "</strong></h2>"
+            );
 
-        // $client = new Client($sid, $token);
-        // $client->messages->create($receiverNumber, [
-        //     'from' => $fromNumber,
-        //     'body' => $message
-        // ]);
+            $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
+            $response = $sendgrid->send($email);
 
-        // $request->session()->put('otp_user_id', $user->id);
-        // $request->session()->put('otp_phone_number', $user->nomorHp);
+            $request->session()->put('otp_user_id', $data->id);
+            $request->session()->put('otp_phone_number', $data->nomorHp);
+            $request->session()->put('email', $data->email);
 
-        //     return redirect('/antrean')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
-        // } catch (\Exception $e) {
-        //     return back()->with('error', 'Gagal mengirim SMS: ' . $e->getMessage());
-        // }
+            return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
+        } catch (\Exception $e) {
+            dd($e->getMessage()); 
+            return back()->with('error', 'Gagal mengirim SMS: ' . $e->getMessage());
+        }
     }
 
     public function verifyOtp(Request $request)
@@ -106,6 +112,7 @@ class antreanController extends Controller
             Auth::loginUsingId($userId);
             $request->session()->forget('otp_user_id');
             $request->session()->forget('otp_phone_number');
+            $request->session()->forget('email');
 
             $request->session()->regenerate();
 
@@ -196,4 +203,59 @@ class antreanController extends Controller
     //     }
     // }
 
+
+    //     public function login(Request $request)
+    // {
+    // $request->validate([
+    //     'noHp' => 'required',
+    //     'password' => 'required'
+    // ]);
+
+    // $antrean = antreans::where('nomorHp', $request->noHp)->first();
+
+    // if($antrean && $request->password === $antrean->password){
+    //     Auth::login($antrean);
+    //     $request->session()->regenerate();
+    //     return redirect('/antrean');
+    // }
+
+    // return back()->with('error', 'Nomor Hp atau password salah');
+
+    // KODE KALAU PAKE SMS
+    // $request->validate(['noHp' => 'required']);
+
+    // $user = antreans::where('nomorHp', $request->noHp)->first();
+    // $expiredTime = now()->addMinutes(5);
+
+    // try {
+    // $kode_otp = random_int(100000, 999999);
+    // otps::create([
+    //     'id_user' => $user->id,
+    //     'kodeOtp' => $kode_otp,
+    //     'expired_at' => $expiredTime,
+    //     'status' => 'aktif'
+    // ]);
+
+    // $receiverNumber = '+18777804236';
+    // $receiverNumber = $user->nomorHp;
+    // $message = 'Kode OTP Anda ' . $kode_otp;
+
+    // $sid = env('TWILIO_SID');
+    // $token = env('TWILIO_TOKEN');
+    // $fromNumber = env('TWILIO_FROM');
+
+    // $client = new Client($sid, $token);
+    // $client->messages->create($receiverNumber, [
+    //     'from' => $fromNumber,
+    //     'body' => $message
+    // ]);
+
+    // $request->session()->put('otp_user_id', $user->id);
+    // $request->session()->put('otp_phone_number', $user->nomorHp);
+
+    //     return redirect('/antrean')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
+    // } catch (\Exception $e) {
+    //     return back()->with('error', 'Gagal mengirim SMS: ' . $e->getMessage());
+    // }
+    // }
 }

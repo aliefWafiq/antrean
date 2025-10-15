@@ -11,6 +11,11 @@
     <form action="/login/verify-otp" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
         @csrf
         <div class="w-100 h-auto">
+            @if (session('error'))
+            <div class="alert alert-danger" role="alert">
+                Kode OTP salah atau expired
+            </div>
+            @endif
             <div class="mb-4">
                 <label for="otp" class="form-label">Kode OTP</label>
                 <input type="number" class="form-input w-100" id="otp" name="otp" placeholder="Masukkan kode OTP" required>
@@ -27,9 +32,4 @@
 </div>
 @endsection
 @push('script')
-@if (session('error'))
-<script>
-    alert('Kode OTP tidak valid atau sudah kadaluarsa')
-</script>
-@endif
 @endpush
