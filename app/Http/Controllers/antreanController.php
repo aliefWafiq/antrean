@@ -86,7 +86,7 @@ class antreanController extends Controller
             return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
         } catch (\Exception $e) {
             dd($e->getMessage()); 
-            return back()->with('error', 'Gagal mengirim SMS: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengirim OTP: ' . $e->getMessage());
         }
     }
 
@@ -119,6 +119,7 @@ class antreanController extends Controller
             return redirect('/antrean');
         }
 
+        dd($userId);
         return back()->with('error', 'Kode OTP tidak valid atau sudah kadaluarsa');
     }
 
