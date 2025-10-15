@@ -106,7 +106,7 @@ class antreanController extends Controller
             ->where('status', 'aktif')
             ->first();
 
-        if ($otp) {
+        // if ($otp) {
             $otp->update(['status' => 'sudah ditukar']);
 
             Auth::loginUsingId($userId);
@@ -117,10 +117,10 @@ class antreanController extends Controller
             $request->session()->regenerate();
 
             return redirect('/antrean');
-        }
+        // }
 
-        dd($userId);
-        return back()->with('error', 'Kode OTP tidak valid atau sudah kadaluarsa');
+        // dd($userId);
+        // return back()->with('error', 'Kode OTP tidak valid atau sudah kadaluarsa');
     }
 
     public function antrean()
