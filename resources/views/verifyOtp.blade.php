@@ -13,12 +13,22 @@
         <div class="w-100 h-auto">
             @if (session('error'))
             <div class="alert alert-danger" role="alert">
-                Kode OTP salah atau expired
+                Kode OTP salah atau expired, silahkan cek lagi kode yang dikirim
+            </div>
+            @endif
+            @if (session('success'))
+            <div class="alert alert-success" role="alert">
+                Kode OTP telah di kirim ke Email anda.
             </div>
             @endif
             <div class="mb-4">
                 <label for="otp" class="form-label">Kode OTP</label>
-                <input type="number" class="form-input w-100" id="otp" name="otp" placeholder="Masukkan kode OTP" required>
+                <input type="number"
+                    class="form-input w-100 @if (session('error')) input-error @endif"
+                    id="otp"
+                    name="otp"
+                    placeholder="Masukkan kode OTP"
+                    required>
             </div>
             <div class="d-flex">
                 <p>Kode OTP salah?</p>
@@ -31,5 +41,3 @@
     </form>
 </div>
 @endsection
-@push('script')
-@endpush

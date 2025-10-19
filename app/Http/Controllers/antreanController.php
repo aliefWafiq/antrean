@@ -45,9 +45,8 @@ class antreanController extends Controller
             'email' => 'required',
         ]);
 
-        
+
         $data = antreans::where('email', $request->email)->first();
-        // dd($data);
 
         if (!$data) {
             return back()->with('error', 'Email yang Anda masukkan tidak terdaftar.');
@@ -83,9 +82,9 @@ class antreanController extends Controller
             $request->session()->put('otp_phone_number', $data->nomorHp);
             $request->session()->put('email', $data->email);
 
-            return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke SMS anda.');
+            return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke Email anda.');
         } catch (\Exception $e) {
-            dd($e->getMessage()); 
+            dd($e->getMessage());
             return back()->with('error', 'Gagal mengirim OTP: ' . $e->getMessage());
         }
     }
@@ -102,7 +101,7 @@ class antreanController extends Controller
 
         $otp = otps::where('id_user', $userId)
             ->where('kodeOtp', $request->otp)
-            // ->where('expired_at', '>', now())
+            ->where('expired_at', '>', now())
             ->where('status', 'aktif')
             ->first();
 
@@ -119,7 +118,39 @@ class antreanController extends Controller
             return redirect('/antrean');
         }
 
-        return back()->with('error', 'Kode OTP tidak valid atau sudah kadaluarsa');
+        return back()->with('error', 'Kode OTP tidak valid atau sudah kadaluarsa, silahkan cek lagi kode yang dikirim');
+    }
+
+    public function kirimUlangOtp(Request $request)
+    {
+        $userId = $request->session()->get('otp_user_id');
+
+        $data = antreans::where('id', $userId)->first();
+
+        $expiredTime = now()->addMinutes(5);
+        $kode_otp = random_int(100000, 999999);
+        otps::create([
+            'id_user' => $userId,
+            'kodeOtp' => $kode_otp,
+            'expired_at' => $expiredTime,
+            'status' => 'aktif'
+        ]);
+
+        $email = new \SendGrid\Mail\Mail();
+
+        $email->setFrom(config('mail.from.address'), config('mail.from.name'));
+        $email->setSubject("Kode Verifikasi Anda");
+        $email->addTo($data->email, $data->namaLengkap);
+        $email->addContent("text/plain", "Kode verifikasi Anda adalah: " . $kode_otp);
+        $email->addContent(
+            "text/html",
+            "<h1>Kode Verifikasi Anda</h1><p>Gunakan kode di bawah ini untuk login:</p><h2><strong>" . $kode_otp . "</strong></h2>"
+        );
+
+        $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
+        $response = $sendgrid->send($email);
+
+        return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke Email anda.');
     }
 
     public function antrean()
@@ -136,19 +167,33 @@ class antreanController extends Controller
             'statusAmbilAntrean' => 'sudah ambil'
         ]);
 
-        $receiverNumber = '+18777804236';
+        // $receiverNumber = '+18777804236';
         // $receiverNumber = $user->nomorHp;
-        $message = 'Sukses mengambil antrean, silahkan menunggu di ruang tunggu';
+        // $message = 'Sukses mengambil antrean, silahkan menunggu di ruang tunggu';
 
-        $sid = env('TWILIO_SID');
-        $token = env('TWILIO_TOKEN');
-        $fromNumber = env('TWILIO_FROM');
+        // $sid = env('TWILIO_SID');
+        // $token = env('TWILIO_TOKEN');
+        // $fromNumber = env('TWILIO_FROM');
 
-        $client = new Client($sid, $token);
-        $client->messages->create($receiverNumber, [
-            'from' => $fromNumber,
-            'body' => $message
-        ]);
+        // $client = new Client($sid, $token);
+        // $client->messages->create($receiverNumber, [
+        //     'from' => $fromNumber,
+        //     'body' => $message
+        // ]);
+
+        $email = new \SendGrid\Mail\Mail();
+
+        $email->setFrom(config('mail.from.address'), config('mail.from.name'));
+        $email->setSubject("Sukses mengambil antrean");
+        $email->addTo($antrean->email, $antrean->namaLengkap);
+        $email->addContent("text/plain", "Sukses mengambil antrean, silahkan menunggu di ruang tunggu");
+        $email->addContent(
+            "text/html",
+            "<h1>Sukses mengambil antrean</h1><h2><strong>silahkan menunggu di ruang tunggu</strong></h2>"
+        );
+
+        $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
+        $response = $sendgrid->send($email);
 
         return redirect('/antrean')->with('showSucess', true);
     }
