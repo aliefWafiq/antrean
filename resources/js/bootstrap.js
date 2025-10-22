@@ -14,5 +14,5 @@ window.Echo = new Echo({
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true,
 
-    authEndpoint: 'https://operator-production-2df9.up.railway.app/api/broadcasting/auth'
+    authEndpoint: 'https://operator-production-b42e.up.railway.app/api/broadcasting/auth'
 });
