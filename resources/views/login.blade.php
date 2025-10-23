@@ -13,7 +13,7 @@
         <div class="w-100 h-auto">
             @if (session('error'))
             <div class="alert alert-danger" role="alert">
-                Email salah
+                Data yang dimasukkan salah
             </div>
             @endif
             <div class="mb-4">

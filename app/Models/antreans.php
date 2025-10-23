@@ -17,6 +17,7 @@ class antreans extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'id_perkara',
         'namaLengkap',
         'email',
         'nomorHp',

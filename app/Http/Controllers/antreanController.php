@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\SendOtpEmail;
 use App\Models\antreans;
 use App\Models\otps;
+use App\Models\perkara;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 // use App\Notifications\SendTestSms;
@@ -36,56 +37,21 @@ class antreanController extends Controller
 
     public function login(Request $request)
     {
-        // $request->validate([
-        //     'noHp' => 'required',
-        //     'password' => 'required'
-        // ]);
-
         $request->validate([
-            'email' => 'required',
+            'NomorPerkara' => 'required',
+            'NamaPihak' => 'required',
         ]);
 
+        $dataPerkara = perkara::where('noPerkara', $request->NomorPerkara)
+                        ->where('namaPihak', $request->NamaPihak)
+                        ->first();
 
-        $data = antreans::where('email', $request->email)->first();
+        if (!$dataPerkara) {
+            return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
+        }else {
+            Auth::loginUsingId($dataPerkara->id);
 
-        if (!$data) {
-            return back()->with('error', 'Email yang Anda masukkan tidak terdaftar.');
-        }
-
-        // $user = antreans::where('nomorHp', $request->noHp)->first();
-        $expiredTime = now()->addMinutes(5);
-
-        try {
-            $kode_otp = random_int(100000, 999999);
-            otps::create([
-                'id_user' => $data->id,
-                'kodeOtp' => $kode_otp,
-                'expired_at' => $expiredTime,
-                'status' => 'aktif'
-            ]);
-
-            $email = new \SendGrid\Mail\Mail();
-
-            $email->setFrom(config('mail.from.address'), config('mail.from.name'));
-            $email->setSubject("Kode Verifikasi Anda");
-            $email->addTo($data->email, $data->namaLengkap);
-            $email->addContent("text/plain", "Kode verifikasi Anda adalah: " . $kode_otp);
-            $email->addContent(
-                "text/html",
-                "<h1>Kode Verifikasi Anda</h1><p>Gunakan kode di bawah ini untuk login:</p><h2><strong>" . $kode_otp . "</strong></h2>"
-            );
-
-            $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
-            $response = $sendgrid->send($email);
-
-            $request->session()->put('otp_user_id', $data->id);
-            $request->session()->put('otp_phone_number', $data->nomorHp);
-            $request->session()->put('email', $data->email);
-
-            return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke Email anda.');
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            return back()->with('error', 'Gagal mengirim OTP: ' . $e->getMessage());
+            return redirect('/antrean');
         }
     }
 
@@ -247,6 +213,68 @@ class antreanController extends Controller
     //         return back()->with('error', 'Terjadi kesalahan saat mengambil nomor antrean, silakan coba lagi.');
     //     }
     // }
+
+
+
+
+    // public function login(Request $request)
+    //     {
+    // $request->validate([
+    //     'noHp' => 'required',
+    //     'password' => 'required'
+    // ]);
+
+    //         $request->validate([
+    //             'email' => 'required',
+    //         ]);
+
+
+    //         $data = antreans::where('email', $request->email)->first();
+
+    //         if (!$data) {
+    //             return back()->with('error', 'Email yang Anda masukkan tidak terdaftar.');
+    //         }
+
+    // $user = antreans::where('nomorHp', $request->noHp)->first();
+    //         $expiredTime = now()->addMinutes(5);
+
+    //         try {
+    //             $kode_otp = random_int(100000, 999999);
+    //             otps::create([
+    //                 'id_user' => $data->id,
+    //                 'kodeOtp' => $kode_otp,
+    //                 'expired_at' => $expiredTime,
+    //                 'status' => 'aktif'
+    //             ]);
+
+    //             $email = new \SendGrid\Mail\Mail();
+
+    //             $email->setFrom(config('mail.from.address'), config('mail.from.name'));
+    //             $email->setSubject("Kode Verifikasi Anda");
+    //             $email->addTo($data->email, $data->namaLengkap);
+    //             $email->addContent("text/plain", "Kode verifikasi Anda adalah: " . $kode_otp);
+    //             $email->addContent(
+    //                 "text/html",
+    //                 "<h1>Kode Verifikasi Anda</h1><p>Gunakan kode di bawah ini untuk login:</p><h2><strong>" . $kode_otp . "</strong></h2>"
+    //             );
+
+    //             $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
+    //             $response = $sendgrid->send($email);
+
+    //             $request->session()->put('otp_user_id', $data->id);
+    //             $request->session()->put('otp_phone_number', $data->nomorHp);
+    //             $request->session()->put('email', $data->email);
+
+    //             return redirect('/verify-otp')->with('success', 'Kode OTP telah di kirim ke Email anda.');
+    //         } catch (\Exception $e) {
+    //             dd($e->getMessage());
+    //             return back()->with('error', 'Gagal mengirim OTP: ' . $e->getMessage());
+    //         }
+    //     }
+
+
+
+
 
 
     //     public function login(Request $request)
