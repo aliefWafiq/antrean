@@ -6,7 +6,8 @@
             <img src="{{ asset('img/logo.png') }}" alt="Logo Pengadilan Agama" class="logo mx-auto mb-4">
         </div>
         <div class="w-100">
-            <h2 class="fw-bold title-color mb-4" style="color: #01421A;">
+            <h1 class="mb-4" style="color: #01421A; font-weight: 700;">SIAGA APA</h1>
+            <h2 class="mb-4" style="color: #01421A; font-weight: 600;">
                 Selamat Datang di <br>
                 Pengadilan Agama <br>
                 Kabupaten Bengkalis
