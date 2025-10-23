@@ -3,15 +3,15 @@
 <div class="d-flex flex-column vh-100 text-center container-card" style="background-color: white;">
     <div class="flex-grow-1 d-flex flex-column justify-content-between w-100">
         <div class="h-50 d-flex align-items-center">
-            <img src="{{ asset('img/logo.png') }}" alt="Logo Pengadilan Agama" class="logo mx-auto mb-4">
+            <img src="{{ asset('img/logo.png') }}" alt="Logo Pengadilan Agama" class="logo mx-auto">
         </div>
         <div class="w-100">
-            <h1 class="mb-4" style="color: #01421A; font-weight: 700;">SIAGA APA</h1>
-            <h2 class="mb-4" style="color: #01421A; font-weight: 600;">
-                Selamat Datang di <br>
-                Pengadilan Agama <br>
+            <p class="mb-md-4 heading-welcome" style="color: #01421A; font-weight: 700;">SIAGA APA</p>
+            <p class="mb-md-4 subheading-welcome" style="color: #01421A; font-weight: 600;">
+                Selamat Datang di 
+                Pengadilan Agama 
                 Kabupaten Bengkalis
-            </h2>
+            </p>
             <img src="{{ asset('img/IMG_0104 1.png') }}" alt="Gedung Pengadilan Agama Bengkalis" class="img-fluid rounded w-100">
         </div>
     </div>
