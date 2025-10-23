@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('namaOperator', 255);
             $table->string('email', 255);
-            $table->string('password');
+            $table->string('password', 255);
             $table->timestamp('updated_at');
             $table->timestamp('created_at');
         });
