@@ -46,7 +46,7 @@ class antreanController extends Controller
                         ->where('namaPihak', $request->NamaPihak)
                         ->first();
 
-        if (!$dataPerkara) {
+        if (!$dataPerkara || strtolower($dataPerkara->namaPihak) !== strtolower($request->NamaPihak)) {
             return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
         }else {
             Auth::loginUsingId($dataPerkara->id);
