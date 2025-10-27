@@ -43,12 +43,17 @@ class antreanController extends Controller
         ]);
 
         $dataPerkara = perkara::where('noPerkara', $request->NomorPerkara)
-                        ->where('namaPihak', $request->NamaPihak)
-                        ->first();
+            ->where('namaPihak', $request->NamaPihak)
+            ->first();
 
         if (!$dataPerkara || strtolower($dataPerkara->namaPihak) !== strtolower($request->NamaPihak)) {
             return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
-        }else {
+        } else {
+            session([
+                'perkara_id' => $dataPerkara->id,
+                'perkara_nomor' => $dataPerkara->noPerkara,
+                'perkara_pihak' => $dataPerkara->namaPihak
+            ]);
             Auth::loginUsingId($dataPerkara->id);
 
             return redirect('/antrean');
@@ -121,8 +126,8 @@ class antreanController extends Controller
 
     public function antrean()
     {
-        $antreanId = Auth::id();
-        $dataAntrean = antreans::where('id', $antreanId)->latest()->first();
+        $antreanId = session()->get('perkara_id');
+        $dataAntrean = antreans::where('id_perkara', $antreanId)->latest()->first();
 
         return view('antrean', ['dataAntrean' => $dataAntrean]);
     }
@@ -166,7 +171,7 @@ class antreanController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        $request->session()->forget('perkara_id');
         return redirect('/login');
     }
 
