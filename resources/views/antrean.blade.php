@@ -8,6 +8,9 @@
         <div class="alert alert-success mt-2 position-absolute d-none" role="alert" id="suksesAmbilAntrean" style="z-index: 50;">
             Antrean telah diambil, silahkan tunggu di ruang tunggu
         </div>
+        <div class="alert alert-danger mt-2 position-absolute d-none" role="alert" id="gagalAmbilAntrean" style="z-index: 50;">
+            Antrean telah diambil, tidak dapat mengambil antrean lagi
+        </div>
         @if ($dataPerkara)
         <div class="w-100 h-100 px-3 mt-4">
             <div class="col-12 p-0" style="color: #01421A;">
@@ -45,7 +48,7 @@
                 <div class="px-4">
                     <h5>Tiket Antrean Kamu</h5>
                     @if ($dataAntrean)
-                        <h1>{{ $dataAntrean->tiketAntrean }}</h1>
+                    <h1>{{ $dataAntrean->tiketAntrean }}</h1>
                     @endif
                 </div>
                 <div class="ticket-divider">
@@ -64,7 +67,7 @@
                     </div>
                     <div class="mt-4">
                         @if ($dataAntrean)
-                            <p class="main-text"><span class="text-gray">Perkiraan dipanggil pada pukul </span>{{ \Carbon\Carbon::parse ($dataAntrean->jam_perkiraan)->format('H:i') }} WIB</p>
+                        <p class="main-text"><span class="text-gray">Perkiraan dipanggil pada pukul </span>{{ \Carbon\Carbon::parse ($dataAntrean->jam_perkiraan)->format('H:i') }} WIB</p>
                         @endif
                     </div>
                     <div style="background-color: #E2E6FF; border-radius: 8px;" class="mt-4">
@@ -121,6 +124,16 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         let suksesAmbilAntrean = document.getElementById('suksesAmbilAntrean')
+        suksesAmbilAntrean.classList.remove('d-none')
+        suksesAmbilAntrean.classList.add('alert-slide-down');
+    })
+</script>
+@endif
+
+@if(session('antreanTelahDiAmbil'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let suksesAmbilAntrean = document.getElementById('gagalAmbilAntrean')
         suksesAmbilAntrean.classList.remove('d-none')
         suksesAmbilAntrean.classList.add('alert-slide-down');
     })

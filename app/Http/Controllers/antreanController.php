@@ -141,6 +141,13 @@ class antreanController extends Controller
     public function ambilAntrean(Request $request)
     {
         try {
+            $idPerkara = session()->get('perkara_id');
+            $checkAntrean = antreans::where('id_perkara', $idPerkara)->first();
+
+            if($checkAntrean){
+                return redirect('/antrean')->with('antreanTelahDiAmbil', 'Anda sudah mengambil antrean sebelumnya.');
+            }
+
             $antreanBaru = DB::transaction(function () use ($request) {
                 $idPerkara = session()->get('perkara_id');
                 $dataPerkara = perkara::where('id', $idPerkara)->first();
@@ -152,7 +159,6 @@ class antreanController extends Controller
                 $sekarang = now();
                 $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
 
-                // Konversi ke Carbon object untuk manipulasi tanggal
                 $tanggal_sidang = \Carbon\Carbon::parse($dataPerkara->tanggal_sidang);
 
                 $namaLengkap = $dataPerkara->namaPihak;
@@ -188,7 +194,6 @@ class antreanController extends Controller
 
             return redirect('/antrean')->with('showSucess', true);
         } catch (\Exception $e) {
-            Log::error('Error ambil antrean: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat mengambil nomor antrean: ' . $e->getMessage());
         }
     }
