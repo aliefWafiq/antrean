@@ -44,7 +44,9 @@
             <div class="card-antrean py-4 w-100 h-auto my-4" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
                     <h5>Tiket Antrean Kamu</h5>
-                    <h1>{{ $dataPerkara->tiketAntrean }}</h1>
+                    @if ($dataAntrean)
+                        <h1>{{ $dataAntrean->tiketAntrean }}</h1>
+                    @endif
                 </div>
                 <div class="ticket-divider">
                     <div class="circle-left"></div>
@@ -61,7 +63,9 @@
                         <p class="main-text pr-5">Jl. Lembaga, No. 01, Desa Senggoro, Kecamatan Bengkalis, Kabupaten Bengkalis, Riau</p>
                     </div>
                     <div class="mt-4">
-
+                        @if ($dataAntrean)
+                            <p class="main-text"><span class="text-gray">Perkiraan dipanggil pada pukul </span>{{ \Carbon\Carbon::parse ($dataAntrean->jam_perkiraan)->format('H:i') }} WIB</p>
+                        @endif
                     </div>
                     <div style="background-color: #E2E6FF; border-radius: 8px;" class="mt-4">
                         <p class="main-text p-3">Mohon hadir 15 menit sebelum waktu sidang</p>
