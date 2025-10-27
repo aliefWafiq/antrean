@@ -8,7 +8,7 @@
         <div class="alert alert-success mt-2 position-absolute d-none" role="alert" id="suksesAmbilAntrean" style="z-index: 50;">
             Antrean telah diambil, silahkan tunggu di ruang tunggu
         </div>
-        @if ($dataAntrean)
+        @if ($dataPerkara)
         <div class="w-100 h-100 px-3 mt-4">
             <div class="col-12 p-0" style="color: #01421A;">
                 <div class="d-flex">
@@ -21,7 +21,7 @@
                 </div>
                 <div class="mt-4">
                     <h4>Selamat datang</h4>
-                    <h4>{{ $dataAntrean->namaLengkap }}</h4>
+                    <h4>{{ $dataPerkara->namaPihak }}</h4>
                 </div>
             </div>
             <div class="d-flex col-12 p-0 mt-4">
@@ -31,9 +31,8 @@
                     </div>
                     <h6 class="mt-4">Request <br> Jam Sidang</h6>
                 </a>
-                <form action="/ambil-antrean/{{ $dataAntrean->id }}" method="POST" class="ml-4">
+                <form action="/ambil-antrean" method="POST" class="ml-4">
                     @csrf
-                    @method('PUT')
                     <button type="submit" class="button-antrean p-4 h-100">
                         <div class="h-50 d-flex align-items-center">
                             <img src="{{ asset('img/Group.png') }}" alt="ambil antrean">
@@ -45,7 +44,7 @@
             <div class="card-antrean py-4 w-100 h-auto my-4" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
                     <h5>Tiket Antrean Kamu</h5>
-                    <h1>{{ $dataAntrean->tiketAntrean }}</h1>
+                    <h1>{{ $dataPerkara->tiketAntrean }}</h1>
                 </div>
                 <div class="ticket-divider">
                     <div class="circle-left"></div>
@@ -55,14 +54,14 @@
                 <div class="px-4 mt-5">
                     <div>
                         <span class="text-gray">Tanggal Sidang</span>
-                        <p class="main-text">{{ \Carbon\Carbon::parse($dataAntrean->tanggal_sidang)->translatedFormat('l, d F Y') }}</p>
+                        <p class="main-text">{{ \Carbon\Carbon::parse($dataPerkara->tanggal_sidang)->translatedFormat('l, d F Y') }}</p>
                     </div>
                     <div class="mt-4">
                         <span class="text-gray">Lokasi</span>
                         <p class="main-text pr-5">Jl. Lembaga, No. 01, Desa Senggoro, Kecamatan Bengkalis, Kabupaten Bengkalis, Riau</p>
                     </div>
                     <div class="mt-4">
-                        <p class="main-text"><span class="text-gray">Perkiraan dipanggil pada pukul </span>{{ \Carbon\Carbon::parse($dataAntrean->jam_perkiraan)->format('H:i') }} WIB</p>
+
                     </div>
                     <div style="background-color: #E2E6FF; border-radius: 8px;" class="mt-4">
                         <p class="main-text p-3">Mohon hadir 15 menit sebelum waktu sidang</p>

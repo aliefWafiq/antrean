@@ -13,7 +13,7 @@ Route::get('/logout', [antreanController::class, 'logout']);
 Route::get('/verify-otp', [antreanController::class, 'formVerify']);
 Route::get('/kirim-ulang-otp', [antreanController::class, 'kirimUlangOtp']);
 
-Route::put('/ambil-antrean/{antrean}', [antreanController::class, 'ambilAntrean']);
+Route::post('/ambil-antrean', [antreanController::class, 'ambilAntrean']);
 Route::put('/action/ubahJamSidang/{antrean}', [pengajuan_jam_sidangController::class, 'editJamSidang']);
 
 Route::get("/sendsms", [SmsController::class, 'sendSms']);

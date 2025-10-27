@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\SendOtpEmail;
+// use App\Mail\SendOtpEmail;
 use App\Models\antreans;
 use App\Models\otps;
 use App\Models\perkara;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 // use App\Notifications\SendTestSms;
-use Illuminate\Support\Facades\Mail;
+// use Illuminate\Support\Facades\Mail;
 // use Illuminate\Support\Facades\Notification;
-use Twilio\Rest\Client;
-
+// use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Log;
 
 class antreanController extends Controller
 {
@@ -126,47 +127,70 @@ class antreanController extends Controller
 
     public function antrean()
     {
-        $antreanId = session()->get('perkara_id');
-        $dataAntrean = antreans::where('id_perkara', $antreanId)->latest()->first();
+        $perkaraId = session()->get('perkara_id');
 
-        return view('antrean', ['dataAntrean' => $dataAntrean]);
+        $dataPerkara = perkara::where('id', $perkaraId)->first();
+        $dataAntrean = antreans::where('id_perkara', $perkaraId)->latest()->first();
+
+        return view('antrean', [
+            'dataAntrean' => $dataAntrean,
+            'dataPerkara' => $dataPerkara,
+        ]);
     }
 
-    public function ambilAntrean(antreans $antrean)
+    public function ambilAntrean(Request $request)
     {
-        $antrean->update([
-            'statusAmbilAntrean' => 'sudah ambil'
-        ]);
+        try {
+            $antreanBaru = DB::transaction(function () use ($request) {
+                $idPerkara = session()->get('perkara_id');
+                $dataPerkara = perkara::where('id', $idPerkara)->first();
 
-        // $receiverNumber = '+18777804236';
-        // $receiverNumber = $user->nomorHp;
-        // $message = 'Sukses mengambil antrean, silahkan menunggu di ruang tunggu';
+                if (!$dataPerkara) {
+                    throw new \Exception('Data perkara tidak ditemukan');
+                }
 
-        // $sid = env('TWILIO_SID');
-        // $token = env('TWILIO_TOKEN');
-        // $fromNumber = env('TWILIO_FROM');
+                $sekarang = now();
+                $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
 
-        // $client = new Client($sid, $token);
-        // $client->messages->create($receiverNumber, [
-        //     'from' => $fromNumber,
-        //     'body' => $message
-        // ]);
+                // Konversi ke Carbon object untuk manipulasi tanggal
+                $tanggal_sidang = \Carbon\Carbon::parse($dataPerkara->tanggal_sidang);
 
-        $email = new \SendGrid\Mail\Mail();
+                $namaLengkap = $dataPerkara->namaPihak;
+                $noPerkara = $dataPerkara->noPerkara;
+                $jenisPerkara = $dataPerkara->jenisPerkara;
+                $status = 'menunggu';
 
-        $email->setFrom(config('mail.from.address'), config('mail.from.name'));
-        $email->setSubject("Sukses mengambil antrean");
-        $email->addTo($antrean->email, $antrean->namaLengkap);
-        $email->addContent("text/plain", "Sukses mengambil antrean, silahkan menunggu di ruang tunggu");
-        $email->addContent(
-            "text/html",
-            "<h1>Sukses mengambil antrean</h1><h2><strong>silahkan menunggu di ruang tunggu</strong></h2>"
-        );
+                // Perbaikan logika pengecekan jam
+                if ($perkiraan_sidang->hour >= 16) {
+                    $tanggal_sidang = $tanggal_sidang->addDay()->startOfDay();
+                    $perkiraan_sidang = $tanggal_sidang->copy()->setTime(8, 0, 0);
+                }
 
-        $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
-        $response = $sendgrid->send($email);
+                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang->format('Y-m-d'))
+                    ->orderBy('id', 'desc')
+                    ->lockForUpdate()
+                    ->first();
 
-        return redirect('/antrean')->with('showSucess', true);
+                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
+                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
+
+                return antreans::create([
+                    'id_perkara'    => $idPerkara,
+                    'namaLengkap'   => $namaLengkap,
+                    'noPerkara'     => $noPerkara,
+                    'jenisPerkara'  => $jenisPerkara,
+                    'tiketAntrean'  => $tiketAntrean,
+                    'jam_perkiraan' => $perkiraan_sidang->format('H:i:s'),
+                    'tanggal_sidang' => $tanggal_sidang->format('Y-m-d'),
+                    'status'        => $status
+                ]);
+            }, 5);
+
+            return redirect('/antrean')->with('showSucess', true);
+        } catch (\Exception $e) {
+            Log::error('Error ambil antrean: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat mengambil nomor antrean: ' . $e->getMessage());
+        }
     }
 
     public function logout(Request $request)
@@ -335,5 +359,44 @@ class antreanController extends Controller
     // } catch (\Exception $e) {
     //     return back()->with('error', 'Gagal mengirim SMS: ' . $e->getMessage());
     // }
+    // }
+
+    //     public function ambilAntrean(antreans $antrean)
+    // {
+    //     $antrean->update([
+    //         'statusAmbilAntrean' => 'sudah ambil'
+    //     ]);
+
+    //     $receiverNumber = '+18777804236';
+    //     $receiverNumber = $user->nomorHp;
+    //     $message = 'Sukses mengambil antrean, silahkan menunggu di ruang tunggu';
+
+    //     $sid = env('TWILIO_SID');
+    //     $token = env('TWILIO_TOKEN');
+    //     $fromNumber = env('TWILIO_FROM');
+
+    //     $client = new Client($sid, $token);
+    //     $client->messages->create($receiverNumber, [
+    //         'from' => $fromNumber,
+    //         'body' => $message
+    //     ]);
+
+    //     $email = new \SendGrid\Mail\Mail();
+
+    //     $email->setFrom(config('mail.from.address'), config('mail.from.name'));
+    //     $email->setSubject("Sukses mengambil antrean");
+    //     $email->addTo($antrean->email, $antrean->namaLengkap);
+    //     $email->addContent("text/plain", "Sukses mengambil antrean, silahkan menunggu di ruang tunggu");
+    //     $email->addContent(
+    //         "text/html",
+    //         "<h1>Sukses mengambil antrean</h1><h2><strong>silahkan menunggu di ruang tunggu</strong></h2>"
+    //     );
+
+    //     $sendgrid = new \SendGrid(env('SENDGRID_API_KEY'));
+    //     $response = $sendgrid->send($email);
+
+
+
+    //     return redirect('/antrean')->with('showSucess', true);
     // }
 }
