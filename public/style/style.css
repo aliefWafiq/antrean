@@ -94,11 +94,13 @@
 .dashed-line {
     flex-grow: 1;
     height: 1px;
-    background-image: repeating-linear-gradient(to right,
-            #ccc 0,
-            #ccc 30px,
-            transparent 5px,
-            transparent 40px);
+    background-image: repeating-linear-gradient(
+        to right,
+        #ccc 0,
+        #ccc 30px,
+        transparent 5px,
+        transparent 40px
+    );
 }
 
 .circle-left,
@@ -207,6 +209,36 @@
 .input-error:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.4);
+}
+
+[id*="autoComplete_list_"] {
+    list-style-type: none; 
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+[id*="autoComplete_result_"] {
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    list-style-type: none;
+}
+
+[id*="autoComplete_result_"]:hover,
+.autoComplete_selected {
+    background-color: #f0f0f0;
+}
+
+.no_result {
+    padding: 10px 12px;
+    text-align: center;
+    color: #777;
 }
 
 @media only screen and (min-width: 440px) {

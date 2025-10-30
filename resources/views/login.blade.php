@@ -18,7 +18,7 @@
             @endif
             <div class="mb-4">
                 <label for="NomorPerkara" class="form-label">Nomor Perkara</label>
-                <input type="NomorPerkara" class="form-input w-100" id="NomorPerkara" name="NomorPerkara" placeholder="Masukkan Nomor Perkara" required>
+                <input type="NomorPerkara" class="form-input w-100" id="autoComplete" name="NomorPerkara" placeholder="Masukkan Nomor Perkara" required>
             </div>
             <div class="mb-4">
                 <label for="NamaPihak" class="form-label">Nama Pihak</label>
@@ -45,4 +45,44 @@
 </div>
 @endsection
 @push('script')
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.9/dist/autoComplete.min.js"></script>
+<script>
+    const autoCompleteNomor = new autoComplete({
+        selector: "#autoComplete",
+        data: {
+            src: async (query) => {
+                try {
+                    const source = await fetch(`{{ URL('/search/') }}/${query}`);
+                    const data = await source.json();
+                    return data;
+                } catch (error) {
+                    return error;
+                }
+            },
+            keys: ["noPerkara"]
+        },
+        resultsList: {
+            element: (list, data) => {
+                if (!data.results.length) {
+                    const message = document.createElement("div");
+                    message.classList.add("no_result");
+                    message.innerHTML = `<span>Tidak ada hasil untuk "${data.query}"</span>`;
+                    list.prepend(message);
+                }
+            },
+            noResults: true,
+        },
+        resultItem: {
+            highlight: true,
+        },
+        events: {
+            input: {
+                selection: (event) => {
+                    const selection = event.detail.selection.value;
+                    autoCompleteNomor.input.value = selection.noPerkara;
+                }
+            }
+        }
+    });
+</script>
 @endpush

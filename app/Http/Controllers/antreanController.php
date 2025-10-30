@@ -199,6 +199,14 @@ class antreanController extends Controller
         }
     }
 
+    public function search($query)
+    {
+        return perkara::select('noPerkara')
+            ->where('noPerkara', 'LIKE', '%' . $query . '%')
+            ->limit(10)
+            ->get();
+    }
+
     public function logout(Request $request)
     {
         $request->session()->forget('perkara_id');
