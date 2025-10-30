@@ -165,8 +165,8 @@ class antreanController extends Controller
                 $noPerkara = $dataPerkara->noPerkara;
                 $jenisPerkara = $dataPerkara->jenisPerkara;
                 $status = 'menunggu';
+                $statusAmbilAntrean = 'sudah ambil';
 
-                // Perbaikan logika pengecekan jam
                 if ($perkiraan_sidang->hour >= 16) {
                     $tanggal_sidang = $tanggal_sidang->addDay()->startOfDay();
                     $perkiraan_sidang = $tanggal_sidang->copy()->setTime(8, 0, 0);
@@ -188,7 +188,8 @@ class antreanController extends Controller
                     'tiketAntrean'  => $tiketAntrean,
                     'jam_perkiraan' => $perkiraan_sidang->format('H:i:s'),
                     'tanggal_sidang' => $tanggal_sidang->format('Y-m-d'),
-                    'status'        => $status
+                    'statusAmbilAntrean' => $statusAmbilAntrean,
+                    'status'   => $status
                 ]);
             }, 5);
 

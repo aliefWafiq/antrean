@@ -156,7 +156,7 @@
         function updateAntrean(nomorAntrean) {
             const antreanSekarang = document.getElementById('antreanSekarang')
 
-            antreanSekarang.innerText = nomorAntrean
+            antreanSekarang.innerText = nomorAntrean.tiketAntrean
         }
 
         const antreanId = parseInt("{{ $dataAntrean->id }}");;
@@ -166,8 +166,7 @@
         });
 
         window.Echo.channel('antrean-display-channel').listen('UpdateDisplayAntrean', (event) => {
-            const nomorAntrean = event.tiketAntrean;
-            updateAntrean(nomorAntrean);
+            updateAntrean(event.dataAntreanTerkini);
         })
     });
 </script>
