@@ -59,8 +59,8 @@
                 <div class="px-4 mt-5">
                     @if ($dataAntrean)
                     <div class="d-flex">
-                        <p class="mx-2">Antrean Sekarang : </p>
-                        <p id="antreanSekarang"></p>
+                        <p>Antrean Sekarang : </p>
+                        <p class="mx-2" id="antreanSekarang"></p>
                     </div>
                     @endif
                     <div>
