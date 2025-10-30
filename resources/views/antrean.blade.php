@@ -49,10 +49,6 @@
                     <h5>Tiket Antrean Kamu</h5>
                     @if ($dataAntrean)
                     <h1>{{ $dataAntrean->tiketAntrean }}</h1>
-                    <!-- <div class="d-flex">
-                        <p class="mt">Antrean Sekarang : </p>
-                        <p id="antreanSekarang"></p>
-                    </div> -->
                     @endif
                 </div>
                 <div class="ticket-divider">
@@ -63,7 +59,7 @@
                 <div class="px-4 mt-5">
                     @if ($dataAntrean)
                     <div class="d-flex">
-                        <p class="mt">Antrean Sekarang : </p>
+                        <p class="mx-2">Antrean Sekarang : </p>
                         <p id="antreanSekarang"></p>
                     </div>
                     @endif
