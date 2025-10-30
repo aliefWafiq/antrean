@@ -216,6 +216,9 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0;
+    position: absolute;
+    background-color: white;
+    width: 367px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     max-height: 250px;
     overflow-y: auto;
