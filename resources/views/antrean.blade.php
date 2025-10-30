@@ -49,6 +49,10 @@
                     <h5>Tiket Antrean Kamu</h5>
                     @if ($dataAntrean)
                     <h1>{{ $dataAntrean->tiketAntrean }}</h1>
+                    <!-- <div class="d-flex">
+                        <p class="mt">Antrean Sekarang : </p>
+                        <p id="antreanSekarang"></p>
+                    </div> -->
                     @endif
                 </div>
                 <div class="ticket-divider">
@@ -57,8 +61,14 @@
                     <div class="circle-right"></div>
                 </div>
                 <div class="px-4 mt-5">
+                    @if ($dataAntrean)
+                    <div class="d-flex">
+                        <p class="mt">Antrean Sekarang : </p>
+                        <p id="antreanSekarang"></p>
+                    </div>
+                    @endif
                     <div>
-                        <span class="text-gray">Tanggal Sidang</span>
+                        <span class="text-gray mt-4">Tanggal Sidang</span>
                         <p class="main-text">{{ \Carbon\Carbon::parse($dataPerkara->tanggal_sidang)->translatedFormat('l, d F Y') }}</p>
                     </div>
                     <div class="mt-4">
@@ -143,16 +153,22 @@
 @if ($dataAntrean && $dataAntrean->status === 'menunggu')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const antreanId = parseInt("{{ $dataAntrean->id }}");
+        function updateAntrean(nomorAntrean) {
+            const antreanSekarang = document.getElementById('antreanSekarang')
 
-        // window.Echo.connector.pusher.connection.bind('state_change', function(states) {
-        //     console.log("[KONEKSI] Status koneksi Pusher berubah dari:", states.previous, "ke:", states.current);
-        // });
+            antreanSekarang.innerText = nomorAntrean
+        }
 
-        window.Echo.channel(`antrean.${antreanId}`)
-            .listen('QueueCalled', (event) => {
-                window.location.href = '/';
-            });
+        const antreanId = parseInt("{{ $dataAntrean->id }}");;
+
+        window.Echo.channel(`antrean.${antreanId}`).listen('QueueCalled', (event) => {
+            window.location.href = '/';
+        });
+
+        window.Echo.channel('antrean-display-channel').listen('UpdateDisplayAntrean', (event) => {
+            const nomorAntrean = event.tiketAntrean;
+            updateAntrean(nomorAntrean);
+        })
     });
 </script>
 @endif
