@@ -185,7 +185,9 @@ class antreanController extends Controller
 
         $dataPerkara = perkara::where('id', $perkaraId)->first();
         $dataAntrean = antreans::where('id_perkara', $perkaraId)->latest()->first();
-        $countAntreanHariIni = antreans::where('tanggal_sidang', now()->format('Y-m-d'))->count();
+        $countAntreanHariIni = antreans::where('tanggal_sidang', now()->format('Y-m-d'))
+        ->where('status', 'menunggu')
+        ->count();
 
         return view('antrean', [
             'dataAntrean' => $dataAntrean,
