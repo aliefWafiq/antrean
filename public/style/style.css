@@ -84,8 +84,13 @@
     color: white;
 }
 
+.btn-request-jam:hover {
+    background-color: #015827;
+    color: white;
+}
+
 .btn-buat-antrean:hover {
-    background-color: #5a7c15;
+    background-color: #015827;
     color: white;
 }
 
