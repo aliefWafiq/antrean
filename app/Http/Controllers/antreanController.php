@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 // use Illuminate\Support\Facades\Notification;
 // use Twilio\Rest\Client;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class antreanController extends Controller
 {
@@ -42,30 +43,38 @@ class antreanController extends Controller
             'NomorPerkara' => 'required',
         ]);
 
-        $dataPerkara = perkara::where('noPerkara', $request->NomorPerkara)
-            ->first();
+        $dataPerkara = perkara::where('noPerkara', $request->NomorPerkara)->first();
 
         if (!$dataPerkara) {
             return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
-        } else {
-            $antreanBaru = DB::transaction(function () use ($request) {
-                $idPerkara = perkara::where('noPerkara', $request->NomorPerkara)->first();
-                $dataPerkara = perkara::where('id', $idPerkara)->first();
+        }
 
-                if (!$dataPerkara) {
-                    throw new \Exception('Data perkara tidak ditemukan');
-                }
+        $tanggalSidangHariIni = Carbon::parse($dataPerkara->tanggal_sidang)->format('Y-m-d');
 
+        if (now()->hour >= 16) {
+            $tanggalSidangHariIni = Carbon::parse($dataPerkara->tanggal_sidang)->addDay()->format('Y-m-d');
+        }
+
+        $antreanSudahAda = antreans::where('id_perkara', $dataPerkara->id)
+            ->where('tanggal_sidang', $tanggalSidangHariIni)
+            ->first();
+
+        if ($antreanSudahAda) {
+            session([
+                'perkara_id' => $dataPerkara->id,
+                'perkara_nomor' => $dataPerkara->noPerkara,
+                'perkara_pihak' => $dataPerkara->namaPihak
+            ]);
+            Auth::loginUsingId($dataPerkara->id);
+
+            return redirect('/antrean')->with('info', 'Anda sudah mengambil antrean untuk hari ini.');
+        }
+
+        try {
+            $antreanBaru = DB::transaction(function () use ($dataPerkara) {
                 $sekarang = now();
                 $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
-
-                $tanggal_sidang = \Carbon\Carbon::parse($dataPerkara->tanggal_sidang);
-
-                $namaLengkap = $dataPerkara->namaPihak;
-                $noPerkara = $dataPerkara->noPerkara;
-                $jenisPerkara = $dataPerkara->jenisPerkara;
-                $status = 'menunggu';
-                $statusAmbilAntrean = 'sudah ambil';
+                $tanggal_sidang = Carbon::parse($dataPerkara->tanggal_sidang);
 
                 if ($perkiraan_sidang->hour >= 16) {
                     $tanggal_sidang = $tanggal_sidang->addDay()->startOfDay();
@@ -81,15 +90,15 @@ class antreanController extends Controller
                 $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
 
                 return antreans::create([
-                    'id_perkara'    => $idPerkara,
-                    'namaLengkap'   => $namaLengkap,
-                    'noPerkara'     => $noPerkara,
-                    'jenisPerkara'  => $jenisPerkara,
-                    'tiketAntrean'  => $tiketAntrean,
-                    'jam_perkiraan' => $perkiraan_sidang->format('H:i:s'),
-                    'tanggal_sidang' => $tanggal_sidang->format('Y-m-d'),
-                    'statusAmbilAntrean' => $statusAmbilAntrean,
-                    'status'   => $status
+                    'id_perkara'        => $dataPerkara->id,
+                    'namaLengkap'       => $dataPerkara->namaPihak,
+                    'noPerkara'         => $dataPerkara->noPerkara,
+                    'jenisPerkara'      => $dataPerkara->jenisPerkara,
+                    'tiketAntrean'      => $tiketAntrean,
+                    'jam_perkiraan'     => $perkiraan_sidang->format('H:i:s'),
+                    'tanggal_sidang'    => $tanggal_sidang->format('Y-m-d'),
+                    'statusAmbilAntrean' => 'sudah ambil',
+                    'status'            => 'menunggu'
                 ]);
             }, 5);
 
@@ -101,6 +110,8 @@ class antreanController extends Controller
             Auth::loginUsingId($dataPerkara->id);
 
             return redirect('/antrean');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengambil antrean. Coba lagi. Pesan: ' . $e->getMessage());
         }
     }
 
@@ -189,7 +200,7 @@ class antreanController extends Controller
             $idPerkara = session()->get('perkara_id');
             $checkAntrean = antreans::where('id_perkara', $idPerkara)->first();
 
-            if($checkAntrean){
+            if ($checkAntrean) {
                 return redirect('/antrean')->with('antreanTelahDiAmbil', 'Anda sudah mengambil antrean sebelumnya.');
             }
 
