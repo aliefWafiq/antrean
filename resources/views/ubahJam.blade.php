@@ -9,7 +9,7 @@
             </h5>
         </a>
     </div>
-    <form action="/action/ubahJamSidang/{{ $dataAntrean->id }}" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
+    <form action="/action/requestJamSidang/{{ $dataAntrean->id }}" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
         @csrf
         @method('PUT')
         <div class="w-100 h-auto">

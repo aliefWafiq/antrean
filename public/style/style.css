@@ -71,11 +71,17 @@
 }
 
 .btn-buat-antrean {
-    background-color: #6a9c25;
-    border-radius: 48px;
+    background-color: #026A2F;
+    border-radius: 10px;
     color: white;
     font-weight: 700;
     z-index: 100;
+}
+
+.btn-request-jam {
+    background-color: #026A2F;
+    border-radius: 10px;
+    color: white;
 }
 
 .btn-buat-antrean:hover {
@@ -202,6 +208,32 @@
     height: auto;
 }
 
+.header-login {
+    background-color: #026A2F;
+    color: white;
+}
+
+.text-header {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.text-subheader {
+    font-weight: 400;
+    font-size: 14px;
+    width: 200px;
+}
+
+.header-logo {
+    width: 50px;
+    height: auto;
+}
+
+.header-logo-antrean {
+    width: 40px;
+    height: auto;
+}
+
 .input-error {
     border: 1px solid red;
 }
@@ -244,9 +276,15 @@
     color: #777;
 }
 
+.nomor-antrean {
+    font-size: 50px;
+    font-weight: 700;
+    color: #026A2F;
+}
+
 @media only screen and (min-width: 440px) {
     .container-card {
-        width: 400px;
+        width: 385px;
     }
 
     .heading-welcome {

@@ -16,7 +16,7 @@
             <div class="col-12 p-0" style="color: #01421A;">
                 <div class="d-flex">
                     <div>
-                        <img src="{{ asset('img/logo.png') }}" alt="ambil antrean">
+                        <img src="{{ asset('img/logo.png') }}" alt="ambil antrean" class="header-logo-antrean">
                     </div>
                     <div class="py-2">
                         <h5 class="mx-3">SIAGA</h5>
@@ -24,45 +24,25 @@
                 </div>
                 <div class="mt-4">
                     <h4>Selamat datang</h4>
-                    <h4>{{ $dataPerkara->namaPihak }}</h4>
+                    <h4>{{ $dataPerkara->noPerkara }}</h4>
                 </div>
             </div>
-            <div class="d-flex col-12 p-0 mt-4">
+            <!-- <div class="d-flex col-12 p-0 mt-4">
                 <a href="/ubahJamSidang" class="button-antrean p-4">
                     <div class="h-50">
                         <img src="{{ asset('img/icon.svg - 2025-09-20T191441.386 1.png') }}" alt="jam sidang">
                     </div>
                     <h6 class="mt-4">Request <br> Jam Sidang</h6>
                 </a>
-                <form action="/ambil-antrean" method="POST" class="ml-4">
-                    @csrf
-                    <button type="submit" class="button-antrean p-4 h-100">
-                        <div class="h-50 d-flex align-items-center">
-                            <img src="{{ asset('img/Group.png') }}" alt="ambil antrean">
-                        </div>
-                        <h6 class="mt-4">Ambil <br> Antrean</h6>
-                    </button>
-                </form>
-            </div>
-            <div class="card-antrean py-4 w-100 h-auto my-4" style="background-color: #FFFFFF; border-radius: 16px;">
+            </div> -->
+            <div class="card-antrean py-4 w-100 h-auto" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
-                    <h5>Tiket Antrean Kamu</h5>
-                    @if ($dataAntrean)
-                    <h1>{{ $dataAntrean->tiketAntrean }}</h1>
-                    @endif
-                </div>
-                <div class="ticket-divider">
-                    <div class="circle-left"></div>
-                    <div class="dashed-line"></div>
-                    <div class="circle-right"></div>
-                </div>
-                <div class="px-4 mt-5">
-                    @if ($dataAntrean)
+                    <!-- @if ($dataAntrean)
                     <div class="d-flex">
                         <p>Antrean Sekarang : </p>
                         <p class="mx-2" id="antreanSekarang"></p>
                     </div>
-                    @endif
+                    @endif -->
                     <div>
                         <span class="text-gray mt-4">Tanggal Sidang</span>
                         <p class="main-text">{{ \Carbon\Carbon::parse($dataPerkara->tanggal_sidang)->translatedFormat('l, d F Y') }}</p>
@@ -76,6 +56,31 @@
                         <p class="main-text"><span class="text-gray">Perkiraan dipanggil pada pukul </span>{{ \Carbon\Carbon::parse ($dataAntrean->jam_perkiraan)->format('H:i') }} WIB</p>
                         @endif
                     </div>
+                </div>
+                <div class="ticket-divider">
+                    <div class="circle-left"></div>
+                    <div class="dashed-line"></div>
+                    <div class="circle-right"></div>
+                </div>
+                <div class="px-4 mt-5">
+                    <div>
+                        <h5>Tiket Antrean Kamu</h5>
+                        @if ($dataAntrean)
+                        <h1 class="nomor-antrean">{{ $dataAntrean->tiketAntrean }}</h1>
+                        @endif
+                    </div>
+                    @if ($dataAntrean)
+                    <div class="d-flex mt-3">
+                        <div class="col-6">
+                            <span class="text-gray">Sisa Antrean</span>
+                            <h4>{{ $countAntreanHariIni }}</h4>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-gray">Peserta Dilayani</span>
+                            <h4 id="antreanSekarang"></h4>
+                        </div>
+                    </div>
+                    @endif
                     <div style="background-color: #E2E6FF; border-radius: 8px;" class="mt-4">
                         <p class="main-text p-3">Mohon hadir 15 menit sebelum waktu sidang</p>
                     </div>
@@ -85,6 +90,9 @@
                         </p>
                     </div>
                 </div>
+            </div>
+            <div class="py-3 w-100 flex-grow-1 d-flex align-items-end">
+                <a href="/requestJamSidang" class="btn btn-request-jam w-100 py-3">Request Jadwal Sidang</a>
             </div>
         </div>
         @else

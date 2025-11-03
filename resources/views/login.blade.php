@@ -1,12 +1,16 @@
 @extends('layout.main')
 @section('content')
 <div class="h-screen d-block overflow-auto container-card d-flex flex-column" style="background-color: white;">
-    <div class="w-100 py-5 px-3">
-        <a href="/" style="color: black;">
-            <h5 class="d-flex align-items-center" style="gap: 15px;">
-                Login
-            </h5>
-        </a>
+    <div class="w-100 header-login px-4 py-4">
+        <div class="d-flex align-items-center">
+            <div>
+                <img src="{{ asset('img/logo.png') }}" alt="logo" class="header-logo">
+            </div>
+            <div class="mx-3">
+                <span class="text-header">Pengadilan Agama Bengkalis</span>
+                <p class="text-subheader">Sistem Antrian Sidang Gampang Akses (SIAGA)</p>
+            </div>
+        </div>
     </div>
     <form action="/login/action" method="POST" class="w-100 px-3 flex-grow-1 d-flex flex-column">
         @csrf
@@ -16,13 +20,9 @@
                 Data yang dimasukkan salah
             </div>
             @endif
-            <div class="mb-4">
+            <div class="mt-4">
                 <label for="NomorPerkara" class="form-label">Nomor Perkara</label>
                 <input type="NomorPerkara" class="form-input w-100" id="autoComplete" name="NomorPerkara" placeholder="Masukkan Nomor Perkara" required>
-            </div>
-            <div class="mb-4">
-                <label for="NamaPihak" class="form-label">Nama Pihak</label>
-                <input type="NamaPihak" class="form-input w-100" id="NamaPihak" name="NamaPihak" placeholder="Masukkan Nama Pihak" required>
             </div>
             <!-- <div class="mb-4">
                 <label for="email" class="form-label">Email</label>
@@ -37,7 +37,7 @@
                 <input type="password" class="form-input w-100" id="password" name="password" placeholder="Masukkan password" required>
             </div> -->
         </div>
-        <div class="py-3 w-100 flex-grow-1 d-flex align-items-end py-3">
+        <div class="py-3 w-100 flex-grow-1 d-flex align-items-end pb-4">
             <!-- <button type="submit" class="btn btn-buat-antrean w-100 py-3">Login</button> -->
             <button class="btn btn-buat-antrean w-100 py-3">Login</button>
         </div>

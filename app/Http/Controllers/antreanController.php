@@ -40,16 +40,59 @@ class antreanController extends Controller
     {
         $request->validate([
             'NomorPerkara' => 'required',
-            'NamaPihak' => 'required',
         ]);
 
         $dataPerkara = perkara::where('noPerkara', $request->NomorPerkara)
-            ->where('namaPihak', $request->NamaPihak)
             ->first();
 
-        if (!$dataPerkara || strtolower($dataPerkara->namaPihak) !== strtolower($request->NamaPihak)) {
+        if (!$dataPerkara) {
             return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
         } else {
+            $antreanBaru = DB::transaction(function () use ($request) {
+                $idPerkara = perkara::where('noPerkara', $request->NomorPerkara)->first();
+                $dataPerkara = perkara::where('id', $idPerkara)->first();
+
+                if (!$dataPerkara) {
+                    throw new \Exception('Data perkara tidak ditemukan');
+                }
+
+                $sekarang = now();
+                $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
+
+                $tanggal_sidang = \Carbon\Carbon::parse($dataPerkara->tanggal_sidang);
+
+                $namaLengkap = $dataPerkara->namaPihak;
+                $noPerkara = $dataPerkara->noPerkara;
+                $jenisPerkara = $dataPerkara->jenisPerkara;
+                $status = 'menunggu';
+                $statusAmbilAntrean = 'sudah ambil';
+
+                if ($perkiraan_sidang->hour >= 16) {
+                    $tanggal_sidang = $tanggal_sidang->addDay()->startOfDay();
+                    $perkiraan_sidang = $tanggal_sidang->copy()->setTime(8, 0, 0);
+                }
+
+                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang->format('Y-m-d'))
+                    ->orderBy('id', 'desc')
+                    ->lockForUpdate()
+                    ->first();
+
+                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
+                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
+
+                return antreans::create([
+                    'id_perkara'    => $idPerkara,
+                    'namaLengkap'   => $namaLengkap,
+                    'noPerkara'     => $noPerkara,
+                    'jenisPerkara'  => $jenisPerkara,
+                    'tiketAntrean'  => $tiketAntrean,
+                    'jam_perkiraan' => $perkiraan_sidang->format('H:i:s'),
+                    'tanggal_sidang' => $tanggal_sidang->format('Y-m-d'),
+                    'statusAmbilAntrean' => $statusAmbilAntrean,
+                    'status'   => $status
+                ]);
+            }, 5);
+
             session([
                 'perkara_id' => $dataPerkara->id,
                 'perkara_nomor' => $dataPerkara->noPerkara,
@@ -131,10 +174,12 @@ class antreanController extends Controller
 
         $dataPerkara = perkara::where('id', $perkaraId)->first();
         $dataAntrean = antreans::where('id_perkara', $perkaraId)->latest()->first();
+        $countAntreanHariIni = antreans::where('tanggal_sidang', now()->format('Y-m-d'))->count();
 
         return view('antrean', [
             'dataAntrean' => $dataAntrean,
             'dataPerkara' => $dataPerkara,
+            'countAntreanHariIni' => $countAntreanHariIni
         ]);
     }
 
