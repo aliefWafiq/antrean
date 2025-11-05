@@ -37,7 +37,7 @@ class antreanController extends Controller
         return view('verifyOtp');
     }
 
-    public function login(Request $request)
+public function login(Request $request)
     {
         $request->validate([
             'NomorPerkara' => 'required',
@@ -49,14 +49,17 @@ class antreanController extends Controller
             return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
         }
 
-        $tanggalSidangHariIni = Carbon::parse($dataPerkara->tanggal_sidang)->format('Y-m-d');
+        $sekarangCek = now();
+        $tanggalSidangCek;
 
-        if (now()->hour >= 16) {
-            $tanggalSidangHariIni = Carbon::parse($dataPerkara->tanggal_sidang)->addDay()->format('Y-m-d');
+        if ($sekarangCek->format('H:i') >= '16:00') {
+            $tanggalSidangCek = $sekarangCek->copy()->addDay()->startOfDay();
+        } else {
+            $tanggalSidangCek = $sekarangCek->copy()->startOfDay();
         }
 
         $antreanSudahAda = antreans::where('id_perkara', $dataPerkara->id)
-            ->where('tanggal_sidang', $tanggalSidangHariIni)
+            ->where('tanggal_sidang', $tanggalSidangCek->format('Y-m-d'))
             ->first();
 
         if ($antreanSudahAda) {
@@ -73,18 +76,49 @@ class antreanController extends Controller
         try {
             $antreanBaru = DB::transaction(function () use ($dataPerkara) {
                 $sekarang = now();
-                $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
-                $tanggal_sidang = Carbon::parse($dataPerkara->tanggal_sidang);
+                $tanggal_sidang_final;
+                $isBesok = false;
 
-                if ($perkiraan_sidang->hour >= 16) {
-                    $tanggal_sidang = $tanggal_sidang->addDay()->startOfDay();
-                    $perkiraan_sidang = $tanggal_sidang->copy()->setTime(8, 0, 0);
+                if ($sekarang->format('H:i') >= '16:00') {
+                    $tanggal_sidang_final = $sekarang->copy()->addDay()->startOfDay();
+                    $isBesok = true;
+                } else {
+                    $tanggal_sidang_final = $sekarang->copy()->startOfDay();
                 }
 
-                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang->format('Y-m-d'))
+                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang_final->format('Y-m-d'))
                     ->orderBy('id', 'desc')
                     ->lockForUpdate()
                     ->first();
+
+                $perkiraan_sidang_final;
+
+                if ($antreanTerakhir) {
+                    $waktuTerakhir = Carbon::parse($antreanTerakhir->jam_perkiraan);
+                    $waktuBerikutnya = $waktuTerakhir->copy()->addMinutes(30);
+
+                    if ($isBesok) {
+                        $perkiraan_sidang_final = $waktuBerikutnya;
+                    } else {
+                        if ($sekarang->gt($waktuBerikutnya)) {
+                            $perkiraan_sidang_final = $sekarang;
+                        } else {
+                            $perkiraan_sidang_final = $waktuBerikutnya;
+                        }
+                    }
+                } else {
+                    if ($isBesok) {
+                        $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(8, 0, 0);
+                    } else {
+                        $perkiraan_sidang_final = $sekarang;
+                    }
+                }
+
+                $jamPerkiraanStr = $perkiraan_sidang_final->format('H:i:s');
+
+                if ($jamPerkiraanStr > '12:00:00' && $jamPerkiraanStr < '13:30:00') {
+                    $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(13, 30, 0);
+                }
 
                 $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
                 $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
@@ -95,8 +129,8 @@ class antreanController extends Controller
                     'noPerkara'         => $dataPerkara->noPerkara,
                     'jenisPerkara'      => $dataPerkara->jenisPerkara,
                     'tiketAntrean'      => $tiketAntrean,
-                    'jam_perkiraan'     => $perkiraan_sidang->format('H:i:s'),
-                    'tanggal_sidang'    => $tanggal_sidang->format('Y-m-d'),
+                    'jam_perkiraan'     => $perkiraan_sidang_final->format('H:i:s'),
+                    'tanggal_sidang'    => $tanggal_sidang_final->format('Y-m-d'),
                     'statusAmbilAntrean' => 'sudah ambil',
                     'status'            => 'menunggu'
                 ]);
@@ -111,7 +145,7 @@ class antreanController extends Controller
 
             return redirect('/antrean');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengambil antrean. Coba lagi. Pesan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil antrean. Coba lagi. Pesan:' . $e->getMessage());
         }
     }
 
@@ -186,8 +220,8 @@ class antreanController extends Controller
         $dataPerkara = perkara::where('id', $perkaraId)->first();
         $dataAntrean = antreans::where('id_perkara', $perkaraId)->latest()->first();
         $countAntreanHariIni = antreans::where('tanggal_sidang', now()->format('Y-m-d'))
-        ->where('status', 'menunggu')
-        ->count();
+            ->where('status', 'menunggu')
+            ->count();
 
         return view('antrean', [
             'dataAntrean' => $dataAntrean,
@@ -200,7 +234,9 @@ class antreanController extends Controller
     {
         try {
             $idPerkara = session()->get('perkara_id');
-            $checkAntrean = antreans::where('id_perkara', $idPerkara)->first();
+            $checkAntrean = antreans::where('id_perkara', $idPerkara)
+                ->where('status', 'menunggu')
+                ->first();
 
             if ($checkAntrean) {
                 return redirect('/antrean')->with('antreanTelahDiAmbil', 'Anda sudah mengambil antrean sebelumnya.');
@@ -208,16 +244,52 @@ class antreanController extends Controller
 
             $antreanBaru = DB::transaction(function () use ($request) {
                 $idPerkara = session()->get('perkara_id');
-                $dataPerkara = perkara::where('id', $idPerkara)->first();
-
-                if (!$dataPerkara) {
-                    throw new \Exception('Data perkara tidak ditemukan');
-                }
+                $dataPerkara = perkara::findOrFail($idPerkara);
 
                 $sekarang = now();
-                $perkiraan_sidang = $sekarang->copy()->addMinutes(15);
+                $isBesok = false;
 
-                $tanggal_sidang = \Carbon\Carbon::parse($dataPerkara->tanggal_sidang);
+                if ($sekarang->format('H:i') >= '14:30') {
+                    $tanggal_sidang_final = $sekarang->copy()->addDay()->startOfDay();
+                    $isBesok = true;
+                } else {
+                    $tanggal_sidang_final = $sekarang->copy()->startOfDay();
+                }
+
+                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang_final->format('Y-m-d'))
+                    ->orderBy('id', 'desc')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($antreanTerakhir) {
+                    $waktuTerakhir = \Carbon\Carbon::parse($antreanTerakhir->jam_perkiraan);
+                    $waktuBerikutnya = $waktuTerakhir->copy()->addMinutes(30);
+
+                    if ($isBesok) {
+                        $perkiraan_sidang_final = $waktuBerikutnya;
+                    } else {
+                        if ($sekarang->gt($waktuBerikutnya)) {
+                            $perkiraan_sidang_final = $sekarang;
+                        } else {
+                            $perkiraan_sidang_final = $waktuBerikutnya;
+                        }
+                    }
+                } else {
+                    if ($isBesok) {
+                        $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(8, 0, 0);
+                    } else {
+                        $perkiraan_sidang_final = $sekarang;
+                    }
+                }
+
+                $jamPerkiraanStr = $perkiraan_sidang_final->format('H:i:s');
+
+                if ($jamPerkiraanStr > '12:00:00' && $jamPerkiraanStr < '13:30:00') {
+                    $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(13, 30, 0);
+                }
+
+                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
+                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
 
                 $namaLengkap = $dataPerkara->namaPihak;
                 $noPerkara = $dataPerkara->noPerkara;
@@ -225,29 +297,16 @@ class antreanController extends Controller
                 $status = 'menunggu';
                 $statusAmbilAntrean = 'sudah ambil';
 
-                if ($perkiraan_sidang->hour >= 16) {
-                    $tanggal_sidang = $tanggal_sidang->addDay()->startOfDay();
-                    $perkiraan_sidang = $tanggal_sidang->copy()->setTime(8, 0, 0);
-                }
-
-                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang->format('Y-m-d'))
-                    ->orderBy('id', 'desc')
-                    ->lockForUpdate()
-                    ->first();
-
-                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
-                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
-
                 return antreans::create([
                     'id_perkara'    => $idPerkara,
                     'namaLengkap'   => $namaLengkap,
                     'noPerkara'     => $noPerkara,
                     'jenisPerkara'  => $jenisPerkara,
                     'tiketAntrean'  => $tiketAntrean,
-                    'jam_perkiraan' => $perkiraan_sidang->format('H:i:s'),
-                    'tanggal_sidang' => $tanggal_sidang->format('Y-m-d'),
+                    'jam_perkiraan' => $perkiraan_sidang_final->format('H:i:s'),
+                    'tanggal_sidang' => $tanggal_sidang_final->format('Y-m-d'),
                     'statusAmbilAntrean' => $statusAmbilAntrean,
-                    'status'   => $status
+                    'status'        => $status
                 ]);
             }, 5);
 
