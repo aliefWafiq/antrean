@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 // use Illuminate\Support\Facades\Mail;
 // use Illuminate\Support\Facades\Notification;
 // use Twilio\Rest\Client;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class antreanController extends Controller
@@ -50,7 +50,6 @@ public function login(Request $request)
         }
 
         $sekarangCek = now();
-        $tanggalSidangCek;
 
         if ($sekarangCek->format('H:i') >= '16:00') {
             $tanggalSidangCek = $sekarangCek->copy()->addDay()->startOfDay();
@@ -76,7 +75,6 @@ public function login(Request $request)
         try {
             $antreanBaru = DB::transaction(function () use ($dataPerkara) {
                 $sekarang = now();
-                $tanggal_sidang_final;
                 $isBesok = false;
 
                 if ($sekarang->format('H:i') >= '16:00') {
@@ -90,8 +88,6 @@ public function login(Request $request)
                     ->orderBy('id', 'desc')
                     ->lockForUpdate()
                     ->first();
-
-                $perkiraan_sidang_final;
 
                 if ($antreanTerakhir) {
                     $waktuTerakhir = Carbon::parse($antreanTerakhir->jam_perkiraan);

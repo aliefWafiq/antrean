@@ -6,7 +6,7 @@
             <img src="{{ asset('img/logo.png') }}" alt="Logo Pengadilan Agama" class="logo mx-auto">
         </div>
         <div class="w-100">
-            <p class="mb-md-4 heading-welcome" style="color: #01421A; font-weight: 700;">SIAGA APA</p>
+            <p class="mb-md-4 heading-welcome" style="color: #01421A; font-weight: 700;">SIAGA</p>
             <p class="mb-md-4 subheading-welcome" style="color: #01421A; font-weight: 600;">
                 Selamat Datang di 
                 Pengadilan Agama 
