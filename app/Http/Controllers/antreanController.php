@@ -37,7 +37,7 @@ class antreanController extends Controller
         return view('verifyOtp');
     }
 
-public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'NomorPerkara' => 'required',
@@ -49,13 +49,12 @@ public function login(Request $request)
             return back()->with('error', 'Data yang Anda masukkan tidak terdaftar.');
         }
 
-        $sekarangCek = now();
+        $sekarang = now();
+        $tanggalSidangCek = $sekarang->copy()->startOfDay(); // Selalu hari ini
 
-        if ($sekarangCek->format('H:i') < '08:30' || $sekarangCek->format('H:i') > '15:30') {
-            // $tanggalSidangCek = $sekarangCek->copy()->addDay()->startOfDay();
-            return back()->with('error', 'Maaf tidak bisa melakukan pengambilan antrian diluar jam operasional. Jam operasional 8:30 - 15:30');
-        } else {
-            $tanggalSidangCek = $sekarangCek->copy()->startOfDay();
+        $jamSekarangStr = $sekarang->format('H:i');
+        if ($jamSekarangStr < '08:30' || $jamSekarangStr > '14:30') {
+            return back()->with('error', 'Maaf, pendaftaran antrean hanya bisa dilakukan pada jam 08:30 - 14:30.');
         }
 
         $antreanSudahAda = antreans::where('id_perkara', $dataPerkara->id)
@@ -70,66 +69,101 @@ public function login(Request $request)
             ]);
             Auth::loginUsingId($dataPerkara->id);
 
-            return redirect('/antrean')->with('error', 'Anda sudah mengambil antrean untuk hari ini.');
+            return redirect('/antrean');
         }
 
         try {
-            $antreanBaru = DB::transaction(function () use ($dataPerkara) {
-                $sekarang = now();
-                $isBesok = false;
+            $antreanBaru = DB::transaction(function () use ($dataPerkara, $sekarang, $tanggalSidangCek) {
+                $dataTiket = [
+                    "08:30" => "001",
+                    "08:45" => "002",
+                    "09:00" => "003",
+                    "09:15" => "004",
+                    "09:30" => "005",
+                    "09:45" => "006",
+                    "10:00" => "007",
+                    "10:15" => "008",
+                    "10:30" => "009",
+                    "10:45" => "010",
+                    "11:00" => "011",
+                    "11:15" => "012",
+                    "11:30" => "013",
+                    "11:45" => "014",
+                    "13:00" => "015",
+                    "13:15" => "016",
+                    "13:30" => "017",
+                    "13:45" => "018",
+                    "14:00" => "019",
+                    "14:15" => "020",
+                    "14:30" => "021",
+                    "14:45" => "022",
+                    "15:00" => "023",
+                    "15:15" => "024",
+                    "15:30" => "025",
+                    "15:45" => "026",
+                ];
 
-                if ($sekarang->format('H:i') >= '16:00') {
-                    $tanggal_sidang_final = $sekarang->copy()->addDay()->startOfDay();
-                    $isBesok = true;
-                } else {
-                    $tanggal_sidang_final = $sekarang->copy()->startOfDay();
-                }
+                $tanggal_sidang_final = $tanggalSidangCek->copy();
+                $jamSlots = array_keys($dataTiket);
+                $waktuSekarangStr = $sekarang->format('H:i');
 
                 $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang_final->format('Y-m-d'))
                     ->orderBy('id', 'desc')
                     ->lockForUpdate()
                     ->first();
 
-                if ($antreanTerakhir) {
-                    $waktuTerakhir = Carbon::parse($antreanTerakhir->jam_perkiraan);
-                    $waktuBerikutnya = $waktuTerakhir->copy()->addMinutes(15);
+                $jamPerkiraanStr = "";
+                $tiketAntrean = "";
 
-                    if ($isBesok) {
-                        $perkiraan_sidang_final = $waktuBerikutnya;
-                    } else {
-                        if ($sekarang->gt($waktuBerikutnya)) {
-                            $perkiraan_sidang_final = $sekarang;
-                        } else {
-                            $perkiraan_sidang_final = $waktuBerikutnya;
+                if ($antreanTerakhir) {
+                    $jamTerakhirStr = Carbon::parse($antreanTerakhir->jam_perkiraan)->format('H:i');
+
+                    $lastIndex = array_search($jamTerakhirStr, $jamSlots);
+
+                    if ($lastIndex === false) {
+                        // Ini terjadi jika jam di DB (misal "08:31") tidak ada di $jamSlots
+                        throw new \Exception('Terjadi kesalahan data');
+                    }
+
+                    if (($lastIndex + 1) >= count($jamSlots)) {
+                        throw new \Exception('Maaf, antrean untuk hari ini sudah penuh.');
+                    }
+
+                    $jamPerkiraanStr = $jamSlots[$lastIndex + 1];
+                    $tiketAntrean = $dataTiket[$jamPerkiraanStr];
+                } else {
+                    $foundSlot = false;
+                    foreach ($jamSlots as $slot) {
+                        if ($slot > $waktuSekarangStr) {
+                            $jamPerkiraanStr = $slot;
+                            $tiketAntrean = $dataTiket[$slot];
+                            $foundSlot = true;
+                            break;
                         }
                     }
-                } else {
-                    if ($isBesok) {
-                        $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(8, 0, 0);
-                    } else {
-                        $perkiraan_sidang_final = $sekarang;
+
+                    if (!$foundSlot) {
+                        throw new \Exception('Tidak dapat menemukan slot antrean yang tersedia.');
                     }
                 }
 
-                $jamPerkiraanStr = $perkiraan_sidang_final->format('H:i:s');
-
-                if ($jamPerkiraanStr > '12:00:00' && $jamPerkiraanStr < '13:30:00') {
-                    $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(13, 30, 0);
+                if (empty($jamPerkiraanStr) || empty($tiketAntrean)) {
+                    throw new \Exception('Gagal menentukan slot antrean. Silakan coba lagi.');
                 }
 
-                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
-                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
+                list($jam, $menit) = explode(':', $jamPerkiraanStr);
+                $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime($jam, $menit, 0);
 
                 return antreans::create([
-                    'id_perkara'        => $dataPerkara->id,
-                    'namaLengkap'       => $dataPerkara->namaPihak,
-                    'noPerkara'         => $dataPerkara->noPerkara,
-                    'jenisPerkara'      => $dataPerkara->jenisPerkara,
-                    'tiketAntrean'      => $tiketAntrean,
-                    'jam_perkiraan'     => $perkiraan_sidang_final->format('H:i:s'),
-                    'tanggal_sidang'    => $tanggal_sidang_final->format('Y-m-d'),
+                    'id_perkara'         => $dataPerkara->id,
+                    'namaLengkap'        => $dataPerkara->namaPihak,
+                    'noPerkara'          => $dataPerkara->noPerkara,
+                    'jenisPerkara'       => $dataPerkara->jenisPerkara,
+                    'tiketAntrean'       => $tiketAntrean,
+                    'jam_perkiraan'      => $perkiraan_sidang_final->format('H:i:s'), // Simpan sbg H:i:s
+                    'tanggal_sidang'     => $tanggal_sidang_final->format('Y-m-d'),
                     'statusAmbilAntrean' => 'sudah ambil',
-                    'status'            => 'menunggu'
+                    'status'             => 'menunggu'
                 ]);
             }, 5);
 
@@ -142,7 +176,7 @@ public function login(Request $request)
 
             return redirect('/antrean');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengambil antrean. Coba lagi. Pesan:' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil antrean: ' . $e->getMessage());
         }
     }
 
