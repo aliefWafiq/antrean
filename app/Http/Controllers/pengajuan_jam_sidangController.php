@@ -21,7 +21,6 @@ class pengajuan_jam_sidangController extends Controller
         }
 
         $allSlots = [
-            '08:00',
             '08:30',
             '09:00',
             '09:30',

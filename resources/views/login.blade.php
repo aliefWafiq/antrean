@@ -16,8 +16,8 @@
         @csrf
         <div class="w-100 h-auto">
             @if (session('error'))
-            <div class="alert alert-danger" role="alert">
-                Data yang dimasukkan salah
+            <div class="alert alert-danger mt-2" role="alert">
+                {{ session('error') }}
             </div>
             @endif
             <div class="mt-4">

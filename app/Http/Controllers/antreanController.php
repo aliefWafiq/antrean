@@ -51,8 +51,9 @@ public function login(Request $request)
 
         $sekarangCek = now();
 
-        if ($sekarangCek->format('H:i') >= '16:00') {
-            $tanggalSidangCek = $sekarangCek->copy()->addDay()->startOfDay();
+        if ($sekarangCek->format('H:i') < '08:30' || $sekarangCek->format('H:i') > '15:30') {
+            // $tanggalSidangCek = $sekarangCek->copy()->addDay()->startOfDay();
+            return back()->with('error', 'Maaf tidak bisa melakukan pengambilan antrian diluar jam operasional. Jam operasional 8:30 - 15:30');
         } else {
             $tanggalSidangCek = $sekarangCek->copy()->startOfDay();
         }
@@ -69,7 +70,7 @@ public function login(Request $request)
             ]);
             Auth::loginUsingId($dataPerkara->id);
 
-            return redirect('/antrean')->with('info', 'Anda sudah mengambil antrean untuk hari ini.');
+            return redirect('/antrean')->with('error', 'Anda sudah mengambil antrean untuk hari ini.');
         }
 
         try {
@@ -91,7 +92,7 @@ public function login(Request $request)
 
                 if ($antreanTerakhir) {
                     $waktuTerakhir = Carbon::parse($antreanTerakhir->jam_perkiraan);
-                    $waktuBerikutnya = $waktuTerakhir->copy()->addMinutes(30);
+                    $waktuBerikutnya = $waktuTerakhir->copy()->addMinutes(15);
 
                     if ($isBesok) {
                         $perkiraan_sidang_final = $waktuBerikutnya;
