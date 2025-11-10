@@ -58,10 +58,12 @@ class pengajuan_jam_sidangController extends Controller
         ]);
 
         $jamPilihan = $request->slotJamTersedia . ':00';
+        $tanggal_sidang = antreans::where('id', $antrean->id)->first();
 
         pengajuanJamSidangs::create([
             'id_user' => $antrean->id,
-            'jam_sidang' => $jamPilihan
+            'jam_sidang' => $jamPilihan,
+            'tanggal_sidang' => $tanggal_sidang->tanggal_sidang,
         ]);
 
         return redirect('/antrean')->with('showModal', true);

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\antreans;
 use App\Models\otps;
 use App\Models\perkara;
+use App\Models\pengajuanJamSidangs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,7 @@ class antreanController extends Controller
         }
 
         $sekarang = now();
-        $tanggalSidangCek = $sekarang->copy()->startOfDay(); // Selalu hari ini
+        $tanggalSidangCek = $sekarang->copy()->startOfDay();
 
         $jamSekarangStr = $sekarang->format('H:i');
         if ($jamSekarangStr < '08:30' || $jamSekarangStr > '14:30') {
@@ -68,12 +69,12 @@ class antreanController extends Controller
                 'perkara_pihak' => $dataPerkara->namaPihak
             ]);
             Auth::loginUsingId($dataPerkara->id);
-
             return redirect('/antrean');
         }
 
         try {
             $antreanBaru = DB::transaction(function () use ($dataPerkara, $sekarang, $tanggalSidangCek) {
+
                 $dataTiket = [
                     "08:30" => "001",
                     "08:45" => "002",
@@ -104,51 +105,42 @@ class antreanController extends Controller
                 ];
 
                 $tanggal_sidang_final = $tanggalSidangCek->copy();
-                $jamSlots = array_keys($dataTiket);
-                $waktuSekarangStr = $sekarang->format('H:i');
+                $tanggal_sidang_final_str = $tanggal_sidang_final->format('Y-m-d');
+                $jamSlots = array_keys($dataTiket); 
+                $waktuSekarangStr = $sekarang->format('H:i'); 
 
-                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang_final->format('Y-m-d'))
-                    ->orderBy('id', 'desc')
+                $takenSlotsReguler = antreans::where('tanggal_sidang', $tanggal_sidang_final_str)
                     ->lockForUpdate()
-                    ->first();
+                    ->pluck('jam_perkiraan')
+                    ->map(function ($time) {
+                        return Carbon::parse($time)->format('H:i');
+                    })->toArray();
+
+                $takenSlotsRequest = pengajuanJamSidangs::where('tanggal_sidang', $tanggal_sidang_final_str)
+                    ->where('status', 'diterima')
+                    ->pluck('jam_sidang')
+                    ->map(function ($time) {
+                        return Carbon::parse($time)->format('H:i');
+                    })->toArray();
+
+                $takenSlots = array_unique(array_merge($takenSlotsReguler, $takenSlotsRequest));
 
                 $jamPerkiraanStr = "";
                 $tiketAntrean = "";
+                $foundSlot = false;
 
-                if ($antreanTerakhir) {
-                    $jamTerakhirStr = Carbon::parse($antreanTerakhir->jam_perkiraan)->format('H:i');
+                foreach ($jamSlots as $slot) {
 
-                    $lastIndex = array_search($jamTerakhirStr, $jamSlots);
-
-                    if ($lastIndex === false) {
-                        // Ini terjadi jika jam di DB (misal "08:31") tidak ada di $jamSlots
-                        throw new \Exception('Terjadi kesalahan data');
-                    }
-
-                    if (($lastIndex + 1) >= count($jamSlots)) {
-                        throw new \Exception('Maaf, antrean untuk hari ini sudah penuh.');
-                    }
-
-                    $jamPerkiraanStr = $jamSlots[$lastIndex + 1];
-                    $tiketAntrean = $dataTiket[$jamPerkiraanStr];
-                } else {
-                    $foundSlot = false;
-                    foreach ($jamSlots as $slot) {
-                        if ($slot > $waktuSekarangStr) {
-                            $jamPerkiraanStr = $slot;
-                            $tiketAntrean = $dataTiket[$slot];
-                            $foundSlot = true;
-                            break;
-                        }
-                    }
-
-                    if (!$foundSlot) {
-                        throw new \Exception('Tidak dapat menemukan slot antrean yang tersedia.');
+                    if ($slot > $waktuSekarangStr && !in_array($slot, $takenSlots)) {
+                        $jamPerkiraanStr = $slot;
+                        $tiketAntrean = $dataTiket[$slot];
+                        $foundSlot = true;
+                        break;
                     }
                 }
 
-                if (empty($jamPerkiraanStr) || empty($tiketAntrean)) {
-                    throw new \Exception('Gagal menentukan slot antrean. Silakan coba lagi.');
+                if (!$foundSlot) {
+                    throw new \Exception('Maaf, antrean untuk hari ini sudah penuh');
                 }
 
                 list($jam, $menit) = explode(':', $jamPerkiraanStr);
@@ -160,7 +152,7 @@ class antreanController extends Controller
                     'noPerkara'          => $dataPerkara->noPerkara,
                     'jenisPerkara'       => $dataPerkara->jenisPerkara,
                     'tiketAntrean'       => $tiketAntrean,
-                    'jam_perkiraan'      => $perkiraan_sidang_final->format('H:i:s'), // Simpan sbg H:i:s
+                    'jam_perkiraan'      => $perkiraan_sidang_final->format('H:i:s'),
                     'tanggal_sidang'     => $tanggal_sidang_final->format('Y-m-d'),
                     'statusAmbilAntrean' => 'sudah ambil',
                     'status'             => 'menunggu'

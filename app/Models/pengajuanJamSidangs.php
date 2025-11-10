@@ -9,6 +9,7 @@ class pengajuanJamSidangs extends Model
     protected $fillable = [
         'id_user',
         'jam_sidang',
+        'tanggal_sidang',
         'status'
     ];
 }
