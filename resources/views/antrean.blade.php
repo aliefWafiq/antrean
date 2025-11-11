@@ -27,22 +27,8 @@
                     <h4>{{ $dataPerkara->noPerkara }}</h4>
                 </div>
             </div>
-            <!-- <div class="d-flex col-12 p-0 mt-4">
-                <a href="/ubahJamSidang" class="button-antrean p-4">
-                    <div class="h-50">
-                        <img src="{{ asset('img/icon.svg - 2025-09-20T191441.386 1.png') }}" alt="jam sidang">
-                    </div>
-                    <h6 class="mt-4">Request <br> Jam Sidang</h6>
-                </a>
-            </div> -->
             <div class="card-antrean py-4 w-100 h-auto" style="background-color: #FFFFFF; border-radius: 16px;">
                 <div class="px-4">
-                    <!-- @if ($dataAntrean)
-                    <div class="d-flex">
-                        <p>Antrean Sekarang : </p>
-                        <p class="mx-2" id="antreanSekarang"></p>
-                    </div>
-                    @endif -->
                     <div>
                         <span class="text-gray mt-4">Tanggal Sidang</span>
                         <p class="main-text">{{ \Carbon\Carbon::parse($dataPerkara->tanggal_sidang)->translatedFormat('l, d F Y') }}</p>

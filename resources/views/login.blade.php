@@ -24,21 +24,8 @@
                 <label for="NomorPerkara" class="form-label">Nomor Perkara</label>
                 <input type="NomorPerkara" class="form-input w-100" id="autoComplete" name="NomorPerkara" placeholder="Masukkan Nomor Perkara" required>
             </div>
-            <!-- <div class="mb-4">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-input w-100" id="email" name="email" placeholder="Masukkan Email" required>
-            </div> -->
-            <!-- <div class="mb-4">
-                <label for="noHp" class="form-label">Nomor HP</label>
-                <input type="text" class="form-input w-100" id="noHp" name="noHp" placeholder="Masukkan Nomor HP" required>
-            </div> -->
-            <!-- <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-input w-100" id="password" name="password" placeholder="Masukkan password" required>
-            </div> -->
         </div>
         <div class="py-3 w-100 flex-grow-1 d-flex align-items-end pb-4">
-            <!-- <button type="submit" class="btn btn-buat-antrean w-100 py-3">Login</button> -->
             <button class="btn btn-buat-antrean w-100 py-3">Login</button>
         </div>
     </form>

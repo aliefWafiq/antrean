@@ -20,6 +20,5 @@ Route::put('/action/requestJamSidang/{antrean}', [pengajuan_jam_sidangController
 
 Route::get("/sendsms", [SmsController::class, 'sendSms']);
 
-// Route::post('/store/buatAntrean', [antreanController::class, 'store']);
 Route::post('/login/action', [antreanController::class, 'login']);
 Route::post('/login/verify-otp', [antreanController::class, 'verifyOtp']);
