@@ -22,15 +22,7 @@ class antreanController extends Controller
     {
         return view('login');
     }
-
-    public function formVerify()
-    {
-        if (!session()->has('otp_user_id')) {
-            return redirect('/login');
-        }
-        return view('verifyOtp');
-    }
-
+    
     public function login(Request $request)
     {
         $request->validate([
@@ -99,8 +91,8 @@ class antreanController extends Controller
 
                 $tanggal_sidang_final = $tanggalSidangCek->copy();
                 $tanggal_sidang_final_str = $tanggal_sidang_final->format('Y-m-d');
-                $jamSlots = array_keys($dataTiket); 
-                $waktuSekarangStr = $sekarang->format('H:i'); 
+                $jamSlots = array_keys($dataTiket);
+                $waktuSekarangStr = $sekarang->format('H:i');
 
                 $takenSlotsReguler = antreans::where('tanggal_sidang', $tanggal_sidang_final_str)
                     ->lockForUpdate()
@@ -180,92 +172,6 @@ class antreanController extends Controller
             'dataPerkara' => $dataPerkara,
             'countAntreanHariIni' => $countAntreanHariIni
         ]);
-    }
-
-    public function ambilAntrean(Request $request)
-    {
-        try {
-            $idPerkara = session()->get('perkara_id');
-            $checkAntrean = antreans::where('id_perkara', $idPerkara)
-                ->where('status', 'menunggu')
-                ->first();
-
-            if ($checkAntrean) {
-                return redirect('/antrean')->with('antreanTelahDiAmbil', 'Anda sudah mengambil antrean sebelumnya.');
-            }
-
-            $antreanBaru = DB::transaction(function () use ($request) {
-                $idPerkara = session()->get('perkara_id');
-                $dataPerkara = perkara::findOrFail($idPerkara);
-
-                $sekarang = now();
-                $isBesok = false;
-
-                if ($sekarang->format('H:i') >= '14:30') {
-                    $tanggal_sidang_final = $sekarang->copy()->addDay()->startOfDay();
-                    $isBesok = true;
-                } else {
-                    $tanggal_sidang_final = $sekarang->copy()->startOfDay();
-                }
-
-                $antreanTerakhir = antreans::where('tanggal_sidang', $tanggal_sidang_final->format('Y-m-d'))
-                    ->orderBy('id', 'desc')
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($antreanTerakhir) {
-                    $waktuTerakhir = \Carbon\Carbon::parse($antreanTerakhir->jam_perkiraan);
-                    $waktuBerikutnya = $waktuTerakhir->copy()->addMinutes(30);
-
-                    if ($isBesok) {
-                        $perkiraan_sidang_final = $waktuBerikutnya;
-                    } else {
-                        if ($sekarang->gt($waktuBerikutnya)) {
-                            $perkiraan_sidang_final = $sekarang;
-                        } else {
-                            $perkiraan_sidang_final = $waktuBerikutnya;
-                        }
-                    }
-                } else {
-                    if ($isBesok) {
-                        $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(8, 0, 0);
-                    } else {
-                        $perkiraan_sidang_final = $sekarang;
-                    }
-                }
-
-                $jamPerkiraanStr = $perkiraan_sidang_final->format('H:i:s');
-
-                if ($jamPerkiraanStr > '12:00:00' && $jamPerkiraanStr < '13:30:00') {
-                    $perkiraan_sidang_final = $tanggal_sidang_final->copy()->setTime(13, 30, 0);
-                }
-
-                $nomorBerikutnya = $antreanTerakhir ? intval($antreanTerakhir->tiketAntrean) + 1 : 1;
-                $tiketAntrean = str_pad($nomorBerikutnya, 3, '0', STR_PAD_LEFT);
-
-                $namaLengkap = $dataPerkara->namaPihak;
-                $noPerkara = $dataPerkara->noPerkara;
-                $jenisPerkara = $dataPerkara->jenisPerkara;
-                $status = 'menunggu';
-                $statusAmbilAntrean = 'sudah ambil';
-
-                return antreans::create([
-                    'id_perkara'    => $idPerkara,
-                    'namaLengkap'   => $namaLengkap,
-                    'noPerkara'     => $noPerkara,
-                    'jenisPerkara'  => $jenisPerkara,
-                    'tiketAntrean'  => $tiketAntrean,
-                    'jam_perkiraan' => $perkiraan_sidang_final->format('H:i:s'),
-                    'tanggal_sidang' => $tanggal_sidang_final->format('Y-m-d'),
-                    'statusAmbilAntrean' => $statusAmbilAntrean,
-                    'status'        => $status
-                ]);
-            }, 5);
-
-            return redirect('/antrean')->with('showSucess', true);
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat mengambil nomor antrean: ' . $e->getMessage());
-        }
     }
 
     public function search($query)
