@@ -39,8 +39,8 @@ class antreanController extends Controller
         $tanggalSidangCek = $sekarang->copy()->startOfDay();
 
         $jamSekarangStr = $sekarang->format('H:i');
-        if ($jamSekarangStr < '08:30' || $jamSekarangStr > '14:30') {
-            return back()->with('error', 'Maaf, pendaftaran antrean hanya bisa dilakukan pada jam 08:30 - 14:30.');
+        if ($jamSekarangStr < '07:00' || $jamSekarangStr > '14:30') {
+            return back()->with('error', 'Maaf, pendaftaran antrean hanya bisa dilakukan pada jam 07:00 - 14:30.');
         }
 
         $antreanSudahAda = antreans::where('id_perkara', $dataPerkara->id)
